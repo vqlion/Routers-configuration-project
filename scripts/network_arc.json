@@ -1,0 +1,18 @@
+[
+    {
+        "router_number": 1,
+        "neighbors": [
+            {
+                "interface": "name",
+                "neighbor_number": 2
+            },
+            {
+                "interface": "name",
+                "neighbor_number": 2
+            }
+        ]
+    },
+    {
+
+    }
+]
