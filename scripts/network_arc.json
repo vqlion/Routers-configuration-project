@@ -1,18 +1,259 @@
-[
+{
+"architecture":[
     {
         "router_number": 1,
         "neighbors": [
             {
-                "interface": "name",
+                "interface": "gi1/0",
                 "neighbor_number": 2
             },
             {
-                "interface": "name",
-                "neighbor_number": 2
+                "interface": "f0/0",
+                "neighbor_number": 3
+            }
+        ]
+    },
+
+    {
+        "router_number": 2,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 1
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 4
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 3
             }
         ]
     },
     {
-
+        "router_number": 3,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 5
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 2
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 1
+            }
+        ]
+    },
+    {
+        "router_number": 4,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 2
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 5
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 6
+            },
+            {
+                "interface": "gi3/0",
+                "neighbor_number": 7
+            }
+        ]
+    },
+    {
+        "router_number": 5,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 4
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 3
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 7
+            },
+            {
+                "interface": "gi3/0",
+                "neighbor_number": 6
+            }
+        ]
+    },
+    {
+        "router_number": 6,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 5
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 8
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 4
+            }
+            
+        ]
+    },
+    {
+        "router_number": 7,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 5
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 9
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 4
+            }
+            
+        ]
+    },
+    {
+        "router_number": 8,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 10
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 11
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 6
+            }
+            
+        ]
+    },
+    {
+        "router_number": 9,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 11
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 10
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 7
+            }
+            
+        ]
+    },
+    {
+        "router_number": 10,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 8
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 12
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 11
+            },
+            {
+                "interface": "gi3/0",
+                "neighbor_number": 9
+            }
+            
+        ]
+    },
+    {
+        "router_number": 11,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 9
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 13
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 10
+            },
+            {
+                "interface": "gi3/0",
+                "neighbor_number": 8
+            }
+            
+        ]
+    },
+    {
+        "router_number": 12,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 10
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 13
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 14
+            }
+            
+        ]
+    },
+    {
+        "router_number": 13,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 12
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 11
+            },
+            {
+                "interface": "gi2/0",
+                "neighbor_number": 14
+            }
+            
+        ]
+    },
+    {
+        "router_number": 14,
+        "neighbors": [
+            {
+                "interface": "f0/0",
+                "neighbor_number": 13
+            },
+            {
+                "interface": "gi1/0",
+                "neighbor_number": 12
+            }
+        ]
     }
 ]
+}
