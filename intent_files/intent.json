@@ -1,0 +1,13 @@
+{
+    "intent": [
+        {
+            "AS_number": 2002,
+            "IGP": "RIP",
+            "IP_prefix": "2002:100:1",
+            "IP_mask": 48,
+            "routers": [
+                
+            ]
+        }
+    ]
+}
