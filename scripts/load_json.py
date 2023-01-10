@@ -1,29 +1,31 @@
 import json
 
-#loads a json file with the architecture of the network, creates the adjacency matrix
-#also counts the number of links
-#todo: wrap it up in a function
+#loads a json file with the architecture of the network
+#returns the total number of links between routers and the adjacency matrix of the network
 
-f = open('../intent_files/network_arc.json')
+def load(file_path):
 
-arc = json.load(f)
+    f = open(file_path)
 
-for i in arc['architecture']:
-    print(f'For router {i["router_number"]}')
-    for j in i['neighbors']:
-        print(f'{j}')
+    arc = json.load(f)
 
-router_count = len(arc['architecture'])
-adjacency_matrix = [[0 for _ in range(router_count)] for _ in range(router_count)]
-link_count = 0
+    for i in arc['architecture']:
+        print(f'For router {i["router_number"]}')
+        for j in i['neighbors']:
+            print(f'{j}')
 
-for router in arc['architecture']:
-    for neighbors in router['neighbors']:
-        adjacency_matrix[router['router_number'] - 1][neighbors["neighbor_number"] - 1] = 1
-        link_count += 1
+    router_count = len(arc['architecture'])
+    adjacency_matrix = [[0 for _ in range(router_count)] for _ in range(router_count)]
+    link_count = 0
 
-link_count /= 2
+    for router in arc['architecture']:
+        for neighbors in router['neighbors']:
+            adjacency_matrix[router['router_number'] - 1][neighbors["neighbor_number"] - 1] = 1
+            link_count += 1
 
-print("Adj", adjacency_matrix)
-print("count", link_count)
+    link_count /= 2
+
+    # print("Adj", adjacency_matrix)
+    # print("count", link_count)
+    return int(link_count) , adjacency_matrix
 

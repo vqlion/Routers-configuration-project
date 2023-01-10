@@ -1,4 +1,7 @@
 import re
+import load_json
+
+count, matrix = load_json.load('../intent_files/network_arc.json')
 
 list = []
 
@@ -16,7 +19,7 @@ ip_range_input = ip_range_input[:-1]
 
 #loops over the links and creates a new ip for each link, stores in a list
 #todo: actual creation of the link, affectation to each address to each link, and better support for more mask lengths
-for i in range(1, 10):
+for i in range(1, count):
     r=f'{i}'
     list.append(f'{ip_range_input}{r}')
 

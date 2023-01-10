@@ -6,8 +6,58 @@
             "IP_prefix": "2002:100:1",
             "IP_mask": 48,
             "routers": [
-                
+                {
+                    "router_number":1
+                },
+                {
+                    "router_number":2
+                },
+                {
+                    "router_number":3
+                },
+                {
+                    "router_number":4
+                },
+                {
+                    "router_number":5
+                },
+                {
+                    "router_number":6
+                },
+                {
+                    "router_number":7
+                }
+            ]
+        },
+        {
+            "AS_number": 2003,
+            "IGP": "OSPF",
+            "IP_prefix": "2003:100:1",
+            "IP_mask": 48,
+            "routers": [
+                {
+                    "router_number":8
+                },
+                {
+                    "router_number":9
+                },
+                {
+                    "router_number":10
+                },
+                {
+                    "router_number":11
+                },
+                {
+                    "router_number":12
+                },
+                {
+                    "router_number":13
+                },
+                {
+                    "router_number":14
+                }
             ]
         }
+
     ]
 }
