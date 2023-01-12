@@ -26,6 +26,7 @@ for i in range(1, count + 1):
 #affects an ip to each link and stores it in a new json file based on architecture one
 for routers in arc['architecture']:
     router_number = routers['router_number']
+    routers.update({"loopback_IP": f"{router_number}::{router_number}"}) #generate loopback IP of the router
     for neighbors in routers['neighbors']:
         neighbor_number = neighbors['neighbor_number']
 
