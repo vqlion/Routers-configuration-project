@@ -17,8 +17,7 @@ conf t
 	interface loopback0
 		ipv6 enable 
 		ipv6 address 1::1/64
-		no sh
-utdown 
+		no shutdown 
 		end	
 conf t
 ipv6 router rip ASX2002
@@ -36,6 +35,11 @@ conf t
         no shutdown
 	end
 
+conf t 
+	interface loopback0
+		ipv6 rip ASX2002 enable
+		no shutdown 
+		end	
 config ter
         router bgp 2002
             no bgp default ipv4-unicast
@@ -230,6 +234,12 @@ R3#
                 ipv6 address 2002:101:1:1::2/64
                 no shutdown 
                 end
+conf t 
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 3::3/64
+		no shutdown 
+		end	
 
 conf t
 ipv6 router rip ASX2002
@@ -247,6 +257,12 @@ conf t
 	end
 conf t
         interface f0/0
+	ipv6 rip ASX2002 enable
+        no shutdown
+	end
+
+conf t 
+	interface loopback0
 	ipv6 rip ASX2002 enable
         no shutdown
 	end
@@ -277,6 +293,31 @@ neighbor 2002:104:1:1::2 remote-as 2002
  address-family ipv6 unicast 
  neighbor 2002:104:1:1::2 activate 
 end
+
+conf t           
+router bgp 2002
+neighbor 1::1 remote-as 2002
+neighbor 1::1 update-source loopback0
+neighbor 2::2 remote-as 2002
+neighbor 2::2 update-source loopback0
+neighbor 4::4 remote-as 2002
+neighbor 4::4 update-source loopback0
+neighbor 5::5 remote-as 2002
+neighbor 5::5 update-source loopback0
+neighbor 6::6 remote-as 2002
+neighbor 6::6 update-source loopback0
+neighbor 7::7 remote-as 2002
+neighbor 7::7 update-source loopback0
+
+
+address-family ipv6 unicast 
+ neighbor 1::1 activate 
+ neighbor 7::7 activate 
+ neighbor 2::2 activate
+ neighbor 4::4 activate 
+ neighbor 5::5 activate
+ neighbor 6::6 activate
+
 
     
 R4#
@@ -378,53 +419,29 @@ neighbor 2002:103:1:1::1 remote-as 2002
  neighbor 2002:103:1:1::1 activate 
 end
 
-LOOPBACK 
-
 conf t           
 router bgp 2002
-neighbor 2002:109:1:1::2 remote-as 2002
-neighbor 2002:109:1:1::2 update-source loopback0
-neighbor 2002:106:1:1::2 remote-as 2002
-neighbor 2002:106:1:1::2 update-source loopback0
-neighbor 2002:105:1:1::2 remote-as 2002
-neighbor 2002:105:1:1::2 update-source loopback0
-neighbor 2002:103:1:1::1 remote-as 2002
-neighbor 2002:103:1:1::1 update-source loopback0
-neighbor 2002:102:1:1::2 remote-as 2002
-neighbor 2002:102:1:1::2 update-source loopback0
-neighbor 2002:100:1:1::2 remote-as 2002
-neighbor 2002:100:1:1::2 update-source loopback0
+neighbor 1::1 remote-as 2002
+neighbor 1::1 update-source loopback0
+neighbor 2::2 remote-as 2002
+neighbor 2::2 update-source loopback0
+neighbor 3::3 remote-as 2002
+neighbor 3::3 update-source loopback0
+neighbor 5::5 remote-as 2002
+neighbor 5::5 update-source loopback0
+neighbor 6::6 remote-as 2002
+neighbor 6::6 update-source loopback0
+neighbor 7::7 remote-as 2002
+neighbor 7::7 update-source loopback0
 
 
 address-family ipv6 unicast 
- neighbor 2002:109:1:1::2 activate 
- neighbor 2002:106:1:1::2 activate 
- neighbor 2002:105:1:1::2 activate
- neighbor 2002:103:1:1::1 activate 
- neighbor 2002:102:1:1::2 activate
- neighbor 2002:100:1:1::2 activate
-
-end
-
-  conf t           
-router bgp 2002
-neighbor 2002:109:1:1::2 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:109:1:1::2 activate 
-end
-
-  conf t           
-router bgp 2002
-neighbor 2002:105:1:1::2 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:105:1:1::2 activate 
-end
-
- conf t           
-router bgp 2002
-neighbor 2002:103:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:103:1:1::1 activate 
+ neighbor 1::1 activate 
+ neighbor 7::7 activate 
+ neighbor 2::2 activate
+ neighbor 3::3 activate 
+ neighbor 5::5 activate
+ neighbor 6::6 activate
 end
 
 address-family ipv6 unicast 
@@ -460,6 +477,12 @@ conf t
                 ipv6 address 2002:108:1:1::1/64
                 no shutdown 
                 end
+conf t 
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 5::5/64
+		no shutdown 
+		end
 
 conf t
 ipv6 router rip ASX2002
@@ -485,6 +508,13 @@ conf t
 	ipv6 rip ASX2002 enable
         no shutdown
 	end
+
+conf t 
+	interface loopback0
+	ipv6 rip ASX2002 enable
+        no shutdown
+	end
+
 config ter
         router bgp 2002
             no bgp default ipv4-unicast
@@ -526,6 +556,31 @@ neighbor 2002:103:1:1::1 remote-as 2002
  neighbor 2002:103:1:1::1 activate 
 end
 
+conf t           
+router bgp 2002
+neighbor 1::1 remote-as 2002
+neighbor 1::1 update-source loopback0
+neighbor 2::2 remote-as 2002
+neighbor 2::2 update-source loopback0
+neighbor 4::4 remote-as 2002
+neighbor 4::4 update-source loopback0
+neighbor 3::3 remote-as 2002
+neighbor 3::3 update-source loopback0
+neighbor 6::6 remote-as 2002
+neighbor 6::6 update-source loopback0
+neighbor 7::7 remote-as 2002
+neighbor 7::7 update-source loopback0
+
+
+address-family ipv6 unicast 
+ neighbor 1::1 activate 
+ neighbor 7::7 activate 
+ neighbor 2::2 activate
+ neighbor 4::4 activate 
+ neighbor 3::3 activate
+ neighbor 6::6 activate
+end 
+
 
 R6#
 	config ter
@@ -548,6 +603,13 @@ conf t
                 ipv6 address 2002:106:1:1::2/64
                 no shutdown 
                 end
+
+conf t 
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 6::6/64
+		no shutdown 
+		end
 conf t
 ipv6 router rip ASX2002
 redistribute connected 
@@ -564,6 +626,11 @@ conf t
 	end
 conf t
         interface f0/0
+	ipv6 rip ASX2002 enable
+        no shutdown
+	end
+conf t 
+	interface loopback0
 	ipv6 rip ASX2002 enable
         no shutdown
 	end
@@ -612,7 +679,41 @@ network 2002:105:1:1::/64
 network 2002:106:1:1::/64
 end
 
+config ter
+        router bgp 2002
+            no bgp default ipv4-unicast
+            bgp router-id 6.6.6.6
+            neighbor 2000:0:1:1::2 remote-as 2003
+            address-family ipv6 unicast 
+                neighbor 2000:0:1:1::2 activate 
+conf t           
+router bgp 2002
+neighbor 1::1 remote-as 2002
+neighbor 1::1 update-source loopback0
+neighbor 2::2 remote-as 2002
+neighbor 2::2 update-source loopback0
+neighbor 4::4 remote-as 2002
+neighbor 4::4 update-source loopback0
+neighbor 3::3 remote-as 2002
+neighbor 3::3 update-source loopback0
+neighbor 5::5 remote-as 2002
+neighbor 5::5 update-source loopback0
+neighbor 7::7 remote-as 2002
+neighbor 7::7 update-source loopback0
 
+
+
+address-family ipv6 unicast 
+ neighbor 1::1 activate 
+ neighbor 7::7 activate 
+ neighbor 2::2 activate
+ neighbor 4::4 activate 
+ neighbor 3::3 activate
+ neighbor 5::5 activate
+
+redistribute rip ASX2002
+
+end 
 
 R7#
 	config ter
@@ -635,6 +736,12 @@ conf t
                 ipv6 address 2002:109:1:1::2/64
                 no shutdown 
                 end
+conf t 
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 7::7/64
+		no shutdown 
+		end
 
 
 conf t
@@ -656,6 +763,12 @@ conf t
 	ipv6 rip ASX2002 enable
         no shutdown
 	end
+conf t 
+	interface loopback0
+	ipv6 rip ASX2002 enable
+        no shutdown
+	end
+
 config ter
         router bgp 2002
             no bgp default ipv4-unicast
@@ -699,6 +812,34 @@ network 2002:105:1:1::/64
 network 2002:106:1:1::/64
 network 2001:0:1:1::/64
 end
+
+
+conf t           
+router bgp 2002
+neighbor 1::1 remote-as 2002
+neighbor 1::1 update-source loopback0
+neighbor 2::2 remote-as 2002
+neighbor 2::2 update-source loopback0
+neighbor 4::4 remote-as 2002
+neighbor 4::4 update-source loopback0
+neighbor 3::3 remote-as 2002
+neighbor 3::3 update-source loopback0
+neighbor 6::6 remote-as 2002
+neighbor 6::6 update-source loopback0
+neighbor 5::5 remote-as 2002
+neighbor 5::5 update-source loopback0
+
+
+address-family ipv6 unicast 
+ neighbor 1::1 activate 
+ neighbor 5::5 activate 
+ neighbor 2::2 activate
+ neighbor 4::4 activate 
+ neighbor 3::3 activate
+ neighbor 6::6 activate
+
+redistribute rip ASX2002
+end 
 
 #R8
 conf t
