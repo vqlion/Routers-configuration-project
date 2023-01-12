@@ -3,7 +3,7 @@ import load_json
 import json
 import os
 
-def generate_ip_address(json_file, ip_range, ip_mask, as_number):
+def generate_ip_address(json_file, ip_range, ip_mask):
 
     count, matrix, arc = load_json.load(json_file)
 
@@ -26,7 +26,7 @@ def generate_ip_address(json_file, ip_range, ip_mask, as_number):
         r=f'{i}'
         ip_list.append(f'{ip_range_input}{r}')
 
-    #affects an ip to each link and stores it in a new json file based on architecture one
+    #affects an ip to each link and stores it in the dict from the architecture json file
     for routers in arc['architecture']:
         router_number = routers['router_number']
         routers.update({"loopback_IP": f"{router_number}::{router_number}"}) #generate loopback IP of the router
@@ -44,20 +44,4 @@ def generate_ip_address(json_file, ip_range, ip_mask, as_number):
                     ip = symetric_link['link_IP'] #get the IP of the link
                     neighbors.update({"link_IP": ip}) #set the IP on this router
 
-    # for i in arc['architecture']:
-    #     print(f'For router {i["router_number"]}')
-    #     for j in i['neighbors']:
-    #         print(f'{j}')
-
-    output_path = f'../output_files/network_ips_{as_number}.json'
-    try:
-        os.remove(output_path)
-    except Exception:
-        pass
-    with open(output_path, 'x') as json_file:
-        json.dump(arc, json_file, 
-                            indent=4,  
-                            separators=(',',': ')) #save in a new json file
-    return output_path
-
-    # print(ip_list)
+    return arc #returns the modified dict with the subnetworks' ip range information
