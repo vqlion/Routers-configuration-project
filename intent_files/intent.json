@@ -2,6 +2,7 @@
     "intent": [
         {
             "AS_number": 2002,
+            "architecture_path": "../intent_files/network_arc_2002.json",
             "IGP": "RIP",
             "IP_prefix": "2002:100:1",
             "IP_mask": 48,
@@ -31,6 +32,7 @@
         },
         {
             "AS_number": 2003,
+            "architecture_path": "../intent_files/network_arc_2003.json",
             "IGP": "OSPF",
             "IP_prefix": "2003:100:1",
             "IP_mask": 48,
