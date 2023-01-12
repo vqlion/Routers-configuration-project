@@ -443,6 +443,8 @@ neighbor 2002:108:1:1::1 remote-as 2002
  neighbor 2002:108:1:1::1 activate 
 end
 
+
+
   conf t           
 router bgp 2002
 neighbor 2002:106:1:1::1 remote-as 2002
@@ -456,6 +458,7 @@ neighbor 2002:103:1:1::1 remote-as 2002
  address-family ipv6 unicast 
  neighbor 2002:103:1:1::1 activate 
 end
+
 
 conf t
 router bgp 2002
@@ -473,7 +476,10 @@ network 2002:105:1:1::/64
 network 2002:106:1:1::/64
 end
 
-
+conf t   
+router bgp 2002
+address-family ipv6 unicast
+aggregate-address 2002:0:1:1::/64 as-set
 
 R7#
 	config ter
@@ -561,6 +567,10 @@ network 2002:106:1:1::/64
 network 2001:0:1:1::/64
 end
 
+conf t   
+router bgp 2002
+address-family ipv6 unicast
+ aggregate-address 2002:100:1:1::/64 summary-only
 
 R14#
 	config ter
