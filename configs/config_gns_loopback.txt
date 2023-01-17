@@ -862,6 +862,14 @@ ipv6 address 2000:0:1:1::2/64
 no shutdown
 end
 
+conf t 
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 8::8/64
+		ipv6 ospf 1 area 0
+		no shutdown 
+		end	
+
 conf t
 ipv6 router ospf 1
 router-id 8.8.8.8
@@ -884,35 +892,31 @@ address-family ipv6 unicast
 neighbor 2000:0:1:1::1 activate
 end
 
-conf t 
-router bgp 2003
-neighbor 2003:106:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:106:1:1::1 activate
-end
 
-conf t 
-router bgp 2003
-neighbor 2003:108:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:108:1:1::1 activate
-end
 
-conf t
+conf t           
 router bgp 2003
-address-family ipv6 unicast
-network 2000:0:1:1::/64
-network 2003:106:1:1::/64
-network 2003:108:1:1::/64
-network 2003:109:1:1::/64
-network 2003:107:1:1::/64
-network 2003:103:1:1::/64
-network 2003:100:1:1::/64
-network 2003:101:1:1::/64
-network 2003:102:1:1::/64
-network 2003:104:1:1::/64
-network 2003:105:1:1::/64
-end
+neighbor 9::9 remote-as 2003
+neighbor 9::9 update-source loopback0
+neighbor 10::10 remote-as 2003
+neighbor 10::10 update-source loopback0
+neighbor 11::11 remote-as 2003
+neighbor 11::11 update-source loopback0
+neighbor 12::12 remote-as 2003
+neighbor 12::12 update-source loopback0
+neighbor 13::13 remote-as 2003
+neighbor 13::13 update-source loopback0
+neighbor 14::14 remote-as 2003
+neighbor 14::14 update-source loopback0
+
+
+address-family ipv6 unicast 
+neighbor 9::9 activate 
+neighbor 10::10 activate 
+neighbor 11::11 activate
+neighbor 12::12 activate 
+neighbor 13::13 activate
+neighbor 14::14 activate
 
 #R9
 conf t
@@ -934,6 +938,13 @@ ipv6 enable
 ipv6 address 2001:0:1:1::2/64
 no shutdown
 end
+conf t 
+	ipv6 unicast-routing
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 9::9/64
+		no shutdown 
+		end
 
 conf t
 ipv6 router ospf 1
@@ -957,35 +968,31 @@ address-family ipv6 unicast
 neighbor 2001:0:1:1::1 activate
 end
 
-conf t 
-router bgp 2003
-neighbor 2003:107:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:107:1:1::1 activate
-end
 
-conf t 
+conf t           
 router bgp 2003
-neighbor 2003:109:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:109:1:1::1 activate
-end
+neighbor 8::8 remote-as 2003
+neighbor 8::8 update-source loopback0
+neighbor 10::10 remote-as 2003
+neighbor 10::10 update-source loopback0
+neighbor 11::11 remote-as 2003
+neighbor 11::11 update-source loopback0
+neighbor 12::12 remote-as 2003
+neighbor 12::12 update-source loopback0
+neighbor 13::13 remote-as 2003
+neighbor 13::13 update-source loopback0
+neighbor 14::14 remote-as 2003
+neighbor 14::14 update-source loopback0
 
-conf t
-router bgp 2003
-address-family ipv6 unicast
-network 2001:0:1:1::/64
-network 2003:106:1:1::/64
-network 2003:108:1:1::/64
-network 2003:109:1:1::/64
-network 2003:107:1:1::/64
-network 2003:103:1:1::/64
-network 2003:100:1:1::/64
-network 2003:101:1:1::/64
-network 2003:102:1:1::/64
-network 2003:104:1:1::/64
-network 2003:105:1:1::/64
-end
+
+address-family ipv6 unicast 
+ neighbor 8::8 activate 
+ neighbor 10::10 activate 
+ neighbor 11::11 activate
+ neighbor 12::12 activate 
+ neighbor 13::13 activate
+ neighbor 14::14 activate
+
 
 #R10
 conf t
@@ -1013,6 +1020,14 @@ ipv6 enable
 ipv6 address 2003:109:1:1::1/64
 no shutdown
 end
+conf t 
+	ipv6 unicast-routing
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 10::10/64
+		no shutdown 
+		end
+
 
 conf t
 ipv6 router ospf 1
@@ -1039,31 +1054,32 @@ conf t
 router bgp 2003
 no bgp default ipv4-unicast 
 bgp router-id 10.10.10.10
-neighbor 2003:106:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:106:1:1::2 activate
 end
 
-conf t 
+conf t           
 router bgp 2003
-neighbor 2003:109:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:109:1:1::2 activate
-end
+neighbor 9::9 remote-as 2003
+neighbor 9::9 update-source loopback0
+neighbor 8::8 remote-as 2003
+neighbor 8::8 update-source loopback0
+neighbor 11::11 remote-as 2003
+neighbor 11::11 update-source loopback0
+neighbor 12::12 remote-as 2003
+neighbor 12::12 update-source loopback0
+neighbor 13::13 remote-as 2003
+neighbor 13::13 update-source loopback0
+neighbor 14::14 remote-as 2003
+neighbor 14::14 update-source loopback0
 
-conf t 
-router bgp 2003
-neighbor 2003:105:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:105:1:1::2 activate
-end
 
-conf t 
-router bgp 2003
-neighbor 2003:103:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:103:1:1::1 activate
-end
+address-family ipv6 unicast 
+ neighbor 9::9 activate 
+ neighbor 8::8 activate 
+ neighbor 11::11 activate
+ neighbor 12::12 activate 
+ neighbor 13::13 activate
+ neighbor 14::14 activate
+
 
 #R11
 conf t
@@ -1093,6 +1109,14 @@ no shutdown
 end
 
 conf t
+	ipv6 unicast-routing
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 11::11/64
+		no shutdown 
+		end
+
+conf t
 ipv6 router ospf 1
 router-id 11.11.11.11
 end
@@ -1117,31 +1141,31 @@ conf t
 router bgp 2003
 no bgp default ipv4-unicast 
 bgp router-id 11.11.11.11
-neighbor 2003:107:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:107:1:1::2 activate
 end
 
-conf t 
+conf t           
 router bgp 2003
-neighbor 2003:108:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:108:1:1::2 activate
-end*
+neighbor 9::9 remote-as 2003
+neighbor 9::9 update-source loopback0
+neighbor 8::8 remote-as 2003
+neighbor 8::8 update-source loopback0
+neighbor 10::10 remote-as 2003
+neighbor 10::10 update-source loopback0
+neighbor 12::12 remote-as 2003
+neighbor 12::12 update-source loopback0
+neighbor 13::13 remote-as 2003
+neighbor 13::13 update-source loopback0
+neighbor 14::14 remote-as 2003
+neighbor 14::14 update-source loopback0
 
-conf t 
-router bgp 2003
-neighbor 2003:105:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:105:1:1::1 activate
-end
 
-conf t 
-router bgp 2003
-neighbor 2003:104:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:104:1:1::1 activate
-end
+address-family ipv6 unicast 
+ neighbor 9::9 activate 
+ neighbor 8::8 activate 
+ neighbor 10::10 activate
+ neighbor 12::12 activate 
+ neighbor 13::13 activate
+ neighbor 14::14 activate
 
 
 #R12
@@ -1166,6 +1190,13 @@ ipv6 enable
 ipv6 address 2003:100:1:1::2/64
 no shutdown
 end
+conf t 
+	ipv6 unicast-routing
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 12::12/64
+		no shutdown 
+		end
 
 conf t
 ipv6 router ospf 1
@@ -1188,24 +1219,32 @@ conf t
 router bgp 2003
 no bgp default ipv4-unicast 
 bgp router-id 12.12.12.12
-neighbor 2003:103:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:103:1:1::2 activate
 end
 
-conf t 
+conf t           
 router bgp 2003
-neighbor 2003:102:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:102:1:1::2 activate
-end
+neighbor 9::9 remote-as 2003
+neighbor 9::9 update-source loopback0
+neighbor 8::8 remote-as 2003
+neighbor 8::8 update-source loopback0
+neighbor 10::10 remote-as 2003
+neighbor 10::10 update-source loopback0
+neighbor 11::11 remote-as 2003
+neighbor 11::11 update-source loopback0
+neighbor 13::13 remote-as 2003
+neighbor 13::13 update-source loopback0
+neighbor 14::14 remote-as 2003
+neighbor 14::14 update-source loopback0
 
-conf t 
-router bgp 2003
-neighbor 2003:100:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:100:1:1::1 activate
-end
+
+address-family ipv6 unicast 
+ neighbor 9::9 activate 
+ neighbor 8::8 activate 
+ neighbor 10::10 activate
+ neighbor 11::11 activate 
+ neighbor 13::13 activate
+ neighbor 14::14 activate
+
 
 #R13
 config ter
@@ -1228,6 +1267,14 @@ ipv6 address 2003:101:1:1::2/64
 no shutdown
 end
 
+conf t 
+	ipv6 unicast-routing
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 13::13/64
+		no shutdown 
+		end
+
 conf t
 ipv6 router ospf 1
 router-id 13.13.13.13
@@ -1249,24 +1296,31 @@ conf t
 router bgp 2003
 no bgp default ipv4-unicast 
 bgp router-id 13.13.13.13
-neighbor 2003:104:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:104:1:1::2 activate
 end
 
-conf t 
+conf t           
 router bgp 2003
-neighbor 2003:102:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:102:1:1::1 activate
-end
+neighbor 9::9 remote-as 2003
+neighbor 9::9 update-source loopback0
+neighbor 8::8 remote-as 2003
+neighbor 8::8 update-source loopback0
+neighbor 10::10 remote-as 2003
+neighbor 10::10 update-source loopback0
+neighbor 11::11 remote-as 2003
+neighbor 11::11 update-source loopback0
+neighbor 12::12 remote-as 2003
+neighbor 12::12 update-source loopback0
+neighbor 14::14 remote-as 2003
+neighbor 14::14 update-source loopback0
 
-conf t 
-router bgp 2003
-neighbor 2003:101:1:1::1 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:101:1:1::1 activate
-end
+
+address-family ipv6 unicast 
+ neighbor 9::9 activate 
+ neighbor 8::8 activate 
+ neighbor 10::10 activate
+ neighbor 11::11 activate 
+ neighbor 12::12 activate
+ neighbor 14::14 activate
 
 #R14
 config ter
@@ -1282,6 +1336,13 @@ ipv6 enable
 ipv6 address 2003:100:1:1::1/64
 no shutdown
 end
+conf t 
+	ipv6 unicast-routing
+	interface loopback0
+		ipv6 enable 
+		ipv6 address 14::14/64
+		no shutdown 
+		end
 
 conf t
 ipv6 router ospf 1
@@ -1301,14 +1362,29 @@ conf t
 router bgp 2003
 no bgp default ipv4-unicast 
 bgp router-id 14.14.14.14
-neighbor 2003:101:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:101:1:1::2 activate
 end
 
-conf t 
+conf t           
 router bgp 2003
-neighbor 2003:100:1:1::2 remote-as 2003
-address-family ipv6 unicast
-neighbor 2003:100:1:1::2 activate
-end
+neighbor 9::9 remote-as 2003
+neighbor 9::9 update-source loopback0
+neighbor 8::8 remote-as 2003
+neighbor 8::8 update-source loopback0
+neighbor 10::10 remote-as 2003
+neighbor 10::10 update-source loopback0
+neighbor 11::11 remote-as 2003
+neighbor 11::11 update-source loopback0
+neighbor 12::12 remote-as 2003
+neighbor 12::12 update-source loopback0
+neighbor 13::13 remote-as 2003
+neighbor 13::13 update-source loopback0
+
+
+address-family ipv6 unicast 
+ neighbor 9::9 activate 
+ neighbor 8::8 activate 
+ neighbor 10::10 activate
+ neighbor 11::11 activate 
+ neighbor 12::12 activate
+ neighbor 13::13 activate
+
