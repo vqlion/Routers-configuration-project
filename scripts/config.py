@@ -4,23 +4,29 @@ import os
 import sys
 
 #opens the intent file at the path specified and returns the intents of the given AS, along with information about it
-def get_intents(file, as_number):
-    f = open(file)
+def get_intents(file):
+    try:
+        f = open(file)
+    except Exception:
+        print("There was an error opening the intent file. Terminating...")
+        sys.exit(1)
     intents = json.load(f)
-    as_intents = next(item for item in intents['intent'] if item['AS_number'] == as_number) #get the right AS intents in the file intent
-    #the above line might be irrelevant for future use if we separate as intents in different files
-    architecture_path = as_intents['architecture_path']
-    igp = as_intents['IGP']
-    ip_range = as_intents['IP_prefix']
-    ip_mask = as_intents['IP_mask'] #gets the ip range and mask to create the network ips of the links' subnetworks
+    as_number = intents['AS_number']
+    architecture_path = intents['architecture_path']
+    igp = intents['IGP']
+    ip_range = intents['IP_prefix']
+    ip_mask = intents['IP_mask'] #gets the ip range and mask to create the network ips of the links' subnetworks
 
-    return as_intents, architecture_path, igp, ip_range, ip_mask
+    return as_number, intents, architecture_path, igp, ip_range, ip_mask
 
 if len(sys.argv) != 2:
-    print('Provide the AS number as an argument')
-print("Generating the configuration of AS", sys.argv[1], "...")
-as_number = int(sys.argv[1])
-as_intents, architecture_path, igp, ip_range, ip_mask = get_intents('../intent_files/intent.json', as_number)
+    print('Provide the path of the intent file as an argument')
+    sys.exit(1)
+
+intent_path = sys.argv[1]
+
+as_number, as_intents, architecture_path, igp, ip_range, ip_mask = get_intents(intent_path)
+print("Generating the configuration of AS", as_number, "...")
 
 archi = gen.generate_ip_address(architecture_path, ip_range, ip_mask)
 
