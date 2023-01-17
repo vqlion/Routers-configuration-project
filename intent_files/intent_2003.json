@@ -6,10 +6,28 @@
     "IP_mask": 48,
     "routers": [
         {
-            "router_number": 8
+            "router_number": 8,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g2/0",
+                    "remote_AS": 2002,
+                    "IP_address": "2000:100:1:1::8",
+                    "remote_IP_address": "2000:100:1:1::6"
+                }
+            ]
         },
         {
-            "router_number": 9
+            "router_number": 9,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g2/0",
+                    "remote_AS": 2002,
+                    "IP_address": "2000:100:1:2::9",
+                    "remote_IP_address": "2000:100:1:2::7"
+                }
+            ]
         },
         {
             "router_number": 10

@@ -26,6 +26,7 @@ if len(sys.argv) != 2:
 intent_path = sys.argv[1]
 
 as_number, as_intents, architecture_path, igp, ip_range, ip_mask = get_intents(intent_path)
+router_intent_list = as_intents["routers"]
 print("Generating the configuration of AS", as_number, "...")
 
 archi = gen.generate_ip_address(architecture_path, ip_range, ip_mask)
@@ -72,7 +73,7 @@ def generate_footer():
 
     return footer
 
-def interface_configuration(interface_name, ip_address, as_number, igp):
+def generate_interface_configuration(interface_name, ip_address, as_number, igp):
     interface_config = f'interface {interface_name}\n'
     interface_config += ' no ip address\n'
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n' #verbose constants depending on the interface type
@@ -84,7 +85,7 @@ def interface_configuration(interface_name, ip_address, as_number, igp):
 
     return interface_config
 
-def loopback_configuration(loopback_address,ip_mask,igp,as_number):
+def generate_loopback_configuration(loopback_address,ip_mask,igp,as_number):
     loopback_config = 'interface Loopback0\n no ip address\n'
     loopback_config += f' ipv6 address {loopback_address}/{ip_mask+16}\n'
     loopback_config += ' ipv6 enable\n'
@@ -94,22 +95,40 @@ def loopback_configuration(loopback_address,ip_mask,igp,as_number):
     
     return loopback_config
 
+def generate_eBGP_configuration(router_intents):
+    eBGP_config = ''
+    for ebgp_neighbors in router_intents["eBGP_config"]:
+        remote_address = ebgp_neighbors["remote_IP_address"]
+        remote_as = ebgp_neighbors["remote_AS"]
+        eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
+    return eBGP_config
+
+def generate_EGP_interface(router_intents, as_number, igp):
+    interface_config = ''
+    for ebgp_interfaces in router_intents["eBGP_config"]:
+        interface = ebgp_interfaces["interface"]
+        ip_address = ebgp_interfaces["IP_address"]
+        interface_config += generate_interface_configuration(interface, ip_address, as_number, igp)
+    return interface_config
+
 #actual construction of the config files
 for routers in archi['architecture']:
     router_number = routers['abstract_router_number']
     router_name = f'R{routers["abstract_router_number"]}'
     config_file_name = f'{router_name}_startup-config.cfg'
     output_path = os.path.join(configs_parent_directory, config_file_name)
+    router_intents = next(item for item in router_intent_list if item['router_number'] == router_number)
     with open(output_path, 'w') as config_file:
         config_file.write(CONSTANT_VERBOSE_1 + router_name + CONSTANT_VERBOSE_2) #add the constants and the router's id to the config file
         loopback_address = routers["loopback_IP"]
-        config_file.write(loopback_configuration(loopback_address,ip_mask,igp,as_number))
+        config_file.write(generate_loopback_configuration(loopback_address,ip_mask,igp,as_number))
+
         for neighbors in routers['neighbors']:
             interface_name = neighbors['interface']
             link_ip = neighbors['link_IP']
             ip_address = f'{link_ip}::{router_number}/{ip_mask+16}'
             neighbors.update({"ip_address": ip_address})
-            config_file.write(interface_configuration(interface_name, ip_address, as_number, igp)) #generates the configuration needed line by line and writes it to the file
+            config_file.write(generate_interface_configuration(interface_name, ip_address, as_number, igp)) #generates the configuration needed line by line and writes it to the file
         if igp == "OSPF": #extra config if OSPF router
             ospf_config = f'ipv6 router ospf {as_number}\n'
             ospf_config += f' router_id {router_number}.{router_number}.{router_number}.{router_number}\n default-information originate always\n!\n'

@@ -21,10 +21,28 @@
             "router_number": 5
         },
         {
-            "router_number": 6
+            "router_number": 6,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g1/0",
+                    "remote_AS": 2003,
+                    "IP_address": "2000:100:1:1::6",
+                    "remote_IP_address": "2000:100:1:1::8"
+                }
+            ]
         },
         {
-            "router_number": 7
+            "router_number": 7,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g1/0",
+                    "remote_AS": 2003,
+                    "IP_address": "2000:100:1:2::7",
+                    "remote_IP_address": "2000:100:1:2::9"
+                }
+            ]
         }
     ]
 }
