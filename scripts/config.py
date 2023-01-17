@@ -44,6 +44,50 @@ CONSTANT_VERBOSE_1 = 'version 15.2\nservice timestamps debug datetime msec\nserv
 CONSTANT_VERBOSE_2 = '\n!\nboot-start-marker\nboot-end-marker\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\nmultilink bundle-name authenticated\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n'
 #constants at the beginning of each file
 
+def generate_footer():
+    footer = 'control plane\n'
+    footer += '!\n'
+    footer += '!\n'
+    footer += 'line con 0\n'
+    footer += ' exec-timeout 0 0\n'
+    footer += ' privilege level 15\n'
+    footer += ' logging synchronous\n'
+    footer += ' stopbits 1\n'
+    footer += 'line aux 0\n'
+    footer += ' exec-timeout 0 0\n'
+    footer += ' privilege level 15\n'
+    footer += ' logging synchronous\n'
+    footer += ' stopbits 1\n'
+    footer += 'line vty 0 4\n'
+    footer += ' login\n'
+    footer += '!\n'
+    footer += '!\n'
+    footer += 'end'
+
+    return footer
+
+def interface_configuration(interface_name, ip_address, as_number, igp):
+    interface_config = f'interface {interface_name}\n'
+    interface_config += ' no ip address\n'
+    interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n' #verbose constants depending on the interface type
+    interface_config += f' ipv6 address {ip_address}\n'
+    interface_config += ' ipv6 enable\n'
+    interface_config += ' ipv6 rip ripng enable\n' if igp == 'RIP' else ''
+    interface_config += f' ipv6 ospf {as_number} area 0\n' if igp == 'OSPF' else ''
+    interface_config += '!\n'
+
+    return interface_config
+
+def loopback_configuration(loopback_address,ip_mask,igp,as_number):
+    loopback_config = 'interface Loopback0\n no ip address\n'
+    loopback_config += f' ipv6 address {loopback_address}/{ip_mask+16}\n'
+    loopback_config += ' ipv6 enable\n'
+    loopback_config += ' ipv6 rip ripng enable\n' if igp == 'RIP' else '' #extra config if RIP router
+    loopback_config += f' ipv6 ospf {as_number} area 0\n' if igp == 'OSPF' else '' #extra config if OSPF router
+    loopback_config += '!\n'
+    
+    return loopback_config
+
 #actual construction of the config files
 for routers in archi['architecture']:
     router_number = routers['abstract_router_number']
@@ -53,31 +97,18 @@ for routers in archi['architecture']:
     with open(output_path, 'w') as config_file:
         config_file.write(CONSTANT_VERBOSE_1 + router_name + CONSTANT_VERBOSE_2) #add the constants and the router's id to the config file
         loopback_address = routers["loopback_IP"]
-        loopback_config = 'interface Loopback0\n no ip address\n'
-        loopback_config += f' ipv6 address {loopback_address}/{ip_mask+16}\n'
-        loopback_config += ' ipv6 enable\n'
-        loopback_config += ' ipv6 rip ripng enable\n' if igp == 'RIP' else '' #extra config if RIP router
-        loopback_config += f' ipv6 ospf {as_number} area 0\n' if igp == 'OSPF' else '' #extra config if OSPF router
-        loopback_config += '!\n'
-        config_file.write(loopback_config)
+        config_file.write(loopback_configuration(loopback_address,ip_mask,igp,as_number))
         for neighbors in routers['neighbors']:
             interface_name = neighbors['interface']
             link_ip = neighbors['link_IP']
             ip_address = f'{link_ip}::{router_number}/{ip_mask+16}'
             neighbors.update({"ip_address": ip_address})
-            interface_config = f'interface {interface_name}\n'
-            interface_config += ' no ip address\n'
-            interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n' #verbose constants depending on the interface type
-            interface_config += f' ipv6 address {ip_address}\n'
-            interface_config += ' ipv6 enable\n'
-            interface_config += ' ipv6 rip ripng enable\n' if igp == 'RIP' else ''
-            interface_config += f' ipv6 ospf {as_number} area 0\n' if igp == 'OSPF' else ''
-            interface_config += '!\n'
-            config_file.write(interface_config) #generates the configuration needed line by line and writes it to the file
+            config_file.write(interface_configuration(interface_name, ip_address, as_number, igp)) #generates the configuration needed line by line and writes it to the file
         if igp == "OSPF": #extra config if OSPF router
             ospf_config = f'ipv6 router ospf {as_number}\n'
             ospf_config += f' router_id {router_number}.{router_number}.{router_number}.{router_number}\n default-information originate always\n!\n'
             config_file.write(ospf_config)
+        config_file.write(generate_footer())
 
 with open(json_output_path, 'w') as json_file:
         json.dump(archi, json_file, 
