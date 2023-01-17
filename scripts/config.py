@@ -170,7 +170,7 @@ for routers in archi['architecture']:
             ip_address = f'{link_ip}::{router_number}/{ip_mask+16}'
             neighbors.update({"ip_address": ip_address})
             config_file.write(generate_interface_configuration(interface_name, ip_address, as_number, igp)) #generates the configuration needed line by line and writes it to the file
-            config_file.write(iBGP_configuration(as_number, router_number))
+        config_file.write(iBGP_configuration(as_number, router_number))
         if "eBGP" in router_intents:
             # config_file.write(generate_EGP_interface(router_intents, as_number, igp))
             # config_file.write(generate_eBGP_configuration(router_intents, as_number))
