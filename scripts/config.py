@@ -134,6 +134,12 @@ def iBGP_configuration(as_number, router_number):
     iBGP_config += '!\n'
     iBGP_config += '!\n'
 
+    for routers in archi['architecture']:
+        neighbor_number = routers['abstract_router_number']
+        neighbor_network = routers['link_IP']
+        if router_number != neighbor_number :
+            iBGP_config += f' network {neighbor_network}::/{ip_mask + 16} activate\n'
+
     return iBGP_config
 
 def generate_eBGP_configuration(router_intents, as_number):

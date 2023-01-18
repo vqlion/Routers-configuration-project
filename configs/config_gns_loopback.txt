@@ -84,6 +84,20 @@ address-family ipv6 unicast
  neighbor 5::5 activate
  neighbor 6::6 activate
 
+ conf t
+router bgp 2002
+address-family ipv6 unicast
+network 2002:109:1:1::/64
+network 2002:107:1:1::/64
+network 2002:103:1:1::/64
+network 2002:100:1:1::/64
+network 2002:101:1:1::/64
+network 2002:102:1:1::/64
+network 2002:103:1:1::/64
+network 2002:104:1:1::/64
+network 2002:105:1:1::/64
+network 2002:106:1:1::/64
+end
 
 R2#
     config ter
@@ -213,6 +227,21 @@ address-family ipv6 unicast
  neighbor 5::5 activate
  neighbor 6::6 activate
 
+ conf t
+router bgp 2002
+address-family ipv6 unicast
+network 2002:109:1:1::/64
+network 2002:107:1:1::/64
+network 2002:103:1:1::/64
+network 2002:100:1:1::/64
+network 2002:101:1:1::/64
+network 2002:102:1:1::/64
+network 2002:103:1:1::/64
+network 2002:104:1:1::/64
+network 2002:105:1:1::/64
+network 2002:106:1:1::/64
+end
+
 R3#
     config ter
         ipv6 unicast-routing
@@ -318,7 +347,20 @@ address-family ipv6 unicast
  neighbor 5::5 activate
  neighbor 6::6 activate
 
-
+ conf t
+router bgp 2002
+address-family ipv6 unicast
+network 2002:109:1:1::/64
+network 2002:107:1:1::/64
+network 2002:103:1:1::/64
+network 2002:100:1:1::/64
+network 2002:101:1:1::/64
+network 2002:102:1:1::/64
+network 2002:103:1:1::/64
+network 2002:104:1:1::/64
+network 2002:105:1:1::/64
+network 2002:106:1:1::/64
+end
     
 R4#
     config ter
@@ -449,6 +491,22 @@ address-family ipv6 unicast
  neighbor 2002:106:1:1::2 activate 
  neighbor 2002:105:1:1::2 activate
  neighbor 2002:103:1:1::1 activate 
+
+
+conf t
+router bgp 2002
+address-family ipv6 unicast
+network 2002:109:1:1::/64
+network 2002:107:1:1::/64
+network 2002:103:1:1::/64
+network 2002:100:1:1::/64
+network 2002:101:1:1::/64
+network 2002:102:1:1::/64
+network 2002:103:1:1::/64
+network 2002:104:1:1::/64
+network 2002:105:1:1::/64
+network 2002:106:1:1::/64
+end
 
 R5#
 	config ter
@@ -581,6 +639,21 @@ address-family ipv6 unicast
  neighbor 6::6 activate
 end 
 
+conf t
+router bgp 2002
+address-family ipv6 unicast
+network 2002:109:1:1::/64
+network 2002:107:1:1::/64
+network 2002:103:1:1::/64
+network 2002:100:1:1::/64
+network 2002:101:1:1::/64
+network 2002:102:1:1::/64
+network 2002:103:1:1::/64
+network 2002:104:1:1::/64
+network 2002:105:1:1::/64
+network 2002:106:1:1::/64
+end
+
 
 R6#
 	config ter
@@ -710,9 +783,7 @@ address-family ipv6 unicast
  neighbor 4::4 activate 
  neighbor 3::3 activate
  neighbor 5::5 activate
-
 redistribute rip ASX2002
-
 end 
 
 R7#
@@ -797,22 +868,6 @@ neighbor 2002:103:1:1::1 remote-as 2002
  neighbor 2002:103:1:1::1 activate 
 end
 
-conf t
-router bgp 2002
-address-family ipv6 unicast
-network 2002:109:1:1::/64
-network 2002:107:1:1::/64
-network 2002:103:1:1::/64
-network 2002:100:1:1::/64
-network 2002:101:1:1::/64
-network 2002:102:1:1::/64
-network 2002:103:1:1::/64
-network 2002:104:1:1::/64
-network 2002:105:1:1::/64
-network 2002:106:1:1::/64
-network 2001:0:1:1::/64
-end
-
 
 conf t           
 router bgp 2002
@@ -840,6 +895,23 @@ address-family ipv6 unicast
 
 redistribute rip ASX2002
 end 
+
+conf t
+router bgp 2002
+address-family ipv6 unicast
+network 2002:109:1:1::/64
+network 2002:107:1:1::/64
+network 2002:103:1:1::/64
+network 2002:100:1:1::/64
+network 2002:101:1:1::/64
+network 2002:102:1:1::/64
+network 2002:103:1:1::/64
+network 2002:104:1:1::/64
+network 2002:105:1:1::/64
+network 2002:106:1:1::/64
+network 2001:0:1:1::/64
+end
+
 
 #R8
 conf t
