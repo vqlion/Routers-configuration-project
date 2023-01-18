@@ -25,9 +25,9 @@ def load(file_path):
         routers.update({'abstract_router_number': router_number})
         routers.update({'router_number': router_number - min_router_number + 1})
         for neighbors in routers['neighbors']:
-            neightbor_number = neighbors["neighbor_number"]
-            neighbors.update({'abstract_neighbor_number': neightbor_number})
-            neighbors.update({'neighbor_number': neightbor_number - min_router_number + 1})
+            neighbor_number = neighbors["neighbor_number"]
+            neighbors.update({'abstract_neighbor_number': neighbor_number})
+            neighbors.update({'neighbor_number': neighbor_number - min_router_number + 1})
             adjacency_matrix[routers['router_number'] - 1][neighbors["neighbor_number"] - 1] = link_count + 1
             link_count += 1
 

@@ -29,7 +29,8 @@ def generate_ip_address(json_file, ip_range, ip_mask):
     #affects an ip to each link and stores it in the dict from the architecture json file
     for routers in arc['architecture']:
         router_number = routers['router_number']
-        routers.update({"loopback_IP": f"{router_number}::{router_number}"}) #generate loopback IP of the router
+        abstract_route_number = routers['abstract_router_number']
+        routers.update({"loopback_IP": f"{abstract_route_number}::{abstract_route_number}"}) #generate loopback IP of the router
         for neighbors in routers['neighbors']:
             neighbor_number = neighbors['neighbor_number']
 
