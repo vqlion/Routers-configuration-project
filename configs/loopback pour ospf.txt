@@ -724,21 +724,7 @@ address-family ipv6 unicast
 neighbor 2003:108:1:1::1 activate
 end
 
-conf t
-router bgp 2003
-address-family ipv6 unicast
-network 2000:0:1:1::/64
-network 2003:106:1:1::/64
-network 2003:108:1:1::/64
-network 2003:109:1:1::/64
-network 2003:107:1:1::/64
-network 2003:103:1:1::/64
-network 2003:100:1:1::/64
-network 2003:101:1:1::/64
-network 2003:102:1:1::/64
-network 2003:104:1:1::/64
-network 2003:105:1:1::/64
-end
+
 
 ---LOOPBACK---
 conf t           

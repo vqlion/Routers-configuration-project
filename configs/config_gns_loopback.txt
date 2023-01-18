@@ -578,41 +578,8 @@ config ter
             no bgp default ipv4-unicast
             bgp router-id 5.5.5.5
 end
-conf t           
-router bgp 2002
-neighbor 2002:105:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:105:1:1::1 activate 
-end
-
-  conf t           
-router bgp 2002
-neighbor 2002:108:1:1::2 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:108:1:1::2 activate 
-end
-
-  conf t           
-router bgp 2002
-neighbor 2002:107:1:1::2 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:107:1:1::2 activate 
-end
 
 
-conf t           
-router bgp 2002
-neighbor 2002:104:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:104:1:1::1 activate 
-end
-
- conf t           
-router bgp 2002
-neighbor 2002:103:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:103:1:1::1 activate 
-end
 
 conf t           
 router bgp 2002
@@ -715,27 +682,7 @@ config ter
             neighbor 2000:0:1:1::2 remote-as 2003
             address-family ipv6 unicast 
                 neighbor 2000:0:1:1::2 activate 
-  conf t           
-router bgp 2002
-neighbor 2002:108:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:108:1:1::1 activate 
-end
-
-  conf t           
-router bgp 2002
-neighbor 2002:106:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:106:1:1::1 activate 
-end
-       
- conf t           
-router bgp 2002
-neighbor 2002:103:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:103:1:1::1 activate 
-end
-
+ 
 conf t
 router bgp 2002
 address-family ipv6 unicast
@@ -759,6 +706,7 @@ config ter
             neighbor 2000:0:1:1::2 remote-as 2003
             address-family ipv6 unicast 
                 neighbor 2000:0:1:1::2 activate 
+        end 
 conf t           
 router bgp 2002
 neighbor 1::1 remote-as 2002
@@ -773,7 +721,6 @@ neighbor 5::5 remote-as 2002
 neighbor 5::5 update-source loopback0
 neighbor 7::7 remote-as 2002
 neighbor 7::7 update-source loopback0
-
 
 
 address-family ipv6 unicast 
@@ -847,27 +794,7 @@ config ter
             neighbor 2001:0:1:1::2 remote-as 2003
             address-family ipv6 unicast 
                 neighbor 2001:0:1:1::2 activate 
-  conf t           
-router bgp 2002
-neighbor 2002:109:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:109:1:1::1 activate 
-end
-
-  conf t           
-router bgp 2002
-neighbor 2002:107:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:107:1:1::1 activate 
-end
-
- conf t           
-router bgp 2002
-neighbor 2002:103:1:1::1 remote-as 2002
- address-family ipv6 unicast 
- neighbor 2002:103:1:1::1 activate 
-end
-
+ 
 
 conf t           
 router bgp 2002
@@ -893,7 +820,6 @@ address-family ipv6 unicast
  neighbor 3::3 activate
  neighbor 6::6 activate
 
-redistribute rip ASX2002
 end 
 
 conf t
