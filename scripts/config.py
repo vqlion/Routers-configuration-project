@@ -123,8 +123,10 @@ def generate_eBGP_configuration(router_intents, as_number):
     eBGP_config += 'address-family ipv6\n'
 
     for ebgp_neighbors in router_intents["eBGP_config"]:
+        remote_address = ebgp_neighbors["remote_IP_address"]
+        link_IP=ebgp_neighbors["link_IP"]
         eBGP_config += f' neighbor {remote_address} activate\n'
-        eBGP_config += f' network {remote_address}\n'
+        eBGP_config += f' network {link_IP}\n'
     eBGP_config += 'exit-address-family\n!\n'
 
     return eBGP_config
@@ -134,6 +136,8 @@ def generate_EGP_interface(router_intents, as_number, igp):
     for ebgp_interfaces in router_intents["eBGP_config"]:
         interface = ebgp_interfaces["interface"]
         ip_address = ebgp_interfaces["IP_address"]
+        ip_mask=ebgp_interfaces["link_mask"] 
+        ip_address+=f'/{ip_mask}'
         interface_config += generate_interface_configuration(interface, ip_address, as_number, igp)
 
     return interface_config
@@ -173,7 +177,7 @@ CONSTANT_VERBOSE_2 = '\n!\nboot-start-marker\nboot-end-marker\nno aaa new-model\
 #actual construction of the config files
 for routers in archi['architecture']:
     router_number = routers['abstract_router_number']
-    router_name = f'R{routers["abstract_router_number"]}'
+    router_name = f'i{routers["abstract_router_number"]}'
     config_file_name = f'{router_name}_startup-config.cfg'
     output_path = os.path.join(configs_parent_directory, config_file_name)
     router_intents = next(item for item in router_intent_list if item['router_number'] == router_number)
@@ -194,7 +198,7 @@ for routers in archi['architecture']:
             pass
         if igp == "OSPF": #extra config if OSPF router
             ospf_config = f'ipv6 router ospf {as_number}\n'
-            ospf_config += f' router_id {router_number}.{router_number}.{router_number}.{router_number}\n default-information originate always\n!\n'
+            ospf_config += f' router-id {router_number}.{router_number}.{router_number}.{router_number}\n default-information originate always\n!\n'
             config_file.write(ospf_config)
         config_file.write(generate_footer())
 
@@ -204,5 +208,6 @@ with open(json_output_path, 'w') as json_file:
                             separators=(',',': ')) #save the config in a json file
 
 print("Done! The configuration of each router is located at", configs_parent_directory)
+
 
 
