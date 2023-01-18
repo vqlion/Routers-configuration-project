@@ -19,38 +19,6 @@ def get_intents(file):
 
     return as_number, intents, architecture_path, igp, ip_range, ip_mask
 
-if len(sys.argv) != 2:
-    print('Provide the path of the intent file as an argument')
-    sys.exit(1)
-
-intent_path = sys.argv[1]
-
-as_number, as_intents, architecture_path, igp, ip_range, ip_mask = get_intents(intent_path)
-router_intent_list = as_intents["routers"]
-print("Generating the configuration of AS", as_number, "...")
-
-archi = gen.generate_ip_address(architecture_path, ip_range, ip_mask)
-
-json_output_name = f'complete_architecture_as_{as_number}.json'
-parent_directory = '../output_files/'
-configs_parent_directory = '../output_files/configs/'
-json_output_path = os.path.join(parent_directory, json_output_name)
-
-try:
-    os.mkdir(parent_directory)
-except FileExistsError:
-    pass
-
-try:
-    os.mkdir(configs_parent_directory)
-except FileExistsError:
-    pass
-#creates the required directories to store the output if they are yet to be created
-
-CONSTANT_VERBOSE_1 = 'version 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname '
-CONSTANT_VERBOSE_2 = '\n!\nboot-start-marker\nboot-end-marker\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\nmultilink bundle-name authenticated\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n'
-#constants at the beginning of each file
-
 def generate_footer():
     footer = 'control plane\n'
     footer += '!\n'
@@ -117,6 +85,15 @@ def generate_iBGP_configuration(as_number, router_number):
         neighbor_loopback = routers['loopback_IP']
         if router_number != neighbor_number :
             iBGP_config += f' neighbor {neighbor_loopback} activate\n'
+
+    announced_networks = []
+    for routers in archi['architecture']:
+        for neighbors in routers["neighbors"]:
+            neighbor_network = neighbors['link_IP']
+            if not neighbor_network in announced_networks:
+                iBGP_config += f' network {neighbor_network}::/{ip_mask + 16}\n'
+                announced_networks.append(neighbor_network)
+
     iBGP_config += 'exit-address-family\n'
     iBGP_config += '!\n'
     iBGP_config += 'ip forward-protocol nd\n'
@@ -134,12 +111,6 @@ def generate_iBGP_configuration(as_number, router_number):
     iBGP_config += '!\n'
     iBGP_config += '!\n'
 
-    for routers in archi['architecture']:
-        neighbor_number = routers['abstract_router_number']
-        neighbor_network = routers['link_IP']
-        if router_number != neighbor_number :
-            iBGP_config += f' network {neighbor_network}::/{ip_mask + 16} activate\n'
-
     return iBGP_config
 
 def generate_eBGP_configuration(router_intents, as_number):
@@ -150,9 +121,11 @@ def generate_eBGP_configuration(router_intents, as_number):
         eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
     eBGP_config += '!\n'
     eBGP_config += 'address-family ipv6\n'
+
     for ebgp_neighbors in router_intents["eBGP_config"]:
         eBGP_config += f' neighbor {remote_address} activate'
     eBGP_config += '\nexit-address-family\n!\n'
+
     return eBGP_config
 
 def generate_EGP_interface(router_intents, as_number, igp):
@@ -161,7 +134,40 @@ def generate_EGP_interface(router_intents, as_number, igp):
         interface = ebgp_interfaces["interface"]
         ip_address = ebgp_interfaces["IP_address"]
         interface_config += generate_interface_configuration(interface, ip_address, as_number, igp)
+
     return interface_config
+
+if len(sys.argv) != 2:
+    print('Provide the path of the intent file as an argument')
+    sys.exit(1)
+
+intent_path = sys.argv[1]
+
+as_number, as_intents, architecture_path, igp, ip_range, ip_mask = get_intents(intent_path)
+router_intent_list = as_intents["routers"]
+print("Generating the configuration of AS", as_number, "...")
+
+archi = gen.generate_ip_address(architecture_path, ip_range, ip_mask)
+
+json_output_name = f'complete_architecture_as_{as_number}.json'
+parent_directory = '../output_files/'
+configs_parent_directory = '../output_files/configs/'
+json_output_path = os.path.join(parent_directory, json_output_name)
+
+try:
+    os.mkdir(parent_directory)
+except FileExistsError:
+    pass
+
+try:
+    os.mkdir(configs_parent_directory)
+except FileExistsError:
+    pass
+#creates the required directories to store the output if they are yet to be created
+
+CONSTANT_VERBOSE_1 = 'version 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname '
+CONSTANT_VERBOSE_2 = '\n!\nboot-start-marker\nboot-end-marker\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\nmultilink bundle-name authenticated\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n'
+#constants at the beginning of each file
 
 #actual construction of the config files
 for routers in archi['architecture']:
