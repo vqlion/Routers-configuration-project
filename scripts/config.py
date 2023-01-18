@@ -123,8 +123,9 @@ def generate_eBGP_configuration(router_intents, as_number):
     eBGP_config += 'address-family ipv6\n'
 
     for ebgp_neighbors in router_intents["eBGP_config"]:
-        eBGP_config += f' neighbor {remote_address} activate'
-    eBGP_config += '\nexit-address-family\n!\n'
+        eBGP_config += f' neighbor {remote_address} activate\n'
+        eBGP_config += f' network {remote_address}\n'
+    eBGP_config += 'exit-address-family\n!\n'
 
     return eBGP_config
 
