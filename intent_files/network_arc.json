@@ -4,11 +4,11 @@
             "router_number": 1,
             "neighbors": [
                 {
-                    "interface": "gi1/0",
+                    "interface": "f0/0",
                     "neighbor_number": 2
                 },
                 {
-                    "interface": "f0/0",
+                    "interface": "gi1/0",
                     "neighbor_number": 3
                 }
             ]
