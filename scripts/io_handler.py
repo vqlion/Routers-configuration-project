@@ -6,12 +6,23 @@ import os
 #returns the total number of links between routers and the adjacency matrix of the network
 
 def get_minimun_router_number(arc):
+    # returns the minimum router id in the network
+    # parameters:
+    # arc: a dictionary representing the architecture of the network
+
     min = 99999999999
     for routers in arc['architecture']:
         min = routers['router_number'] if routers['router_number'] < min else min
     return min
 
 def load(file_path):
+    # loads the json file with the architecture of the network
+    # parameters:
+    # file_path: the path of the json file
+    # returns:
+    # link_count: the number of links in the network
+    # adjacency_matrix: the adjacency matrix of the network
+    # arc: a modified dictionnary representing the opened json file
 
     f = open(file_path)
     arc = json.load(f)
@@ -39,6 +50,11 @@ def load(file_path):
 
 
 def generate_ip_address(json_file, ip_range, ip_mask):
+    # generates the ip addresses of the interfaces of a network
+    # parameters:
+    # json_file: the path of the json file containing the architecture of the network
+    # ip_range: the ip range used to generate the ip addresses
+    # ip_mask: the ip max used to generate the ip addresses
 
     count, matrix, arc = load(json_file)
 
@@ -76,6 +92,15 @@ def generate_ip_address(json_file, ip_range, ip_mask):
     return arc #returns the modified dict with the subnetworks' ip range information
 
 def get_intents(file):
+    # gets the intent of an AS based on the intent file in parameters
+    # returns:
+    # as_number: the AS number of the network
+    # intents: a dictionnary representing the intent file
+    # architecture_path: the path json file containing the architecture of the network
+    # igp: the IGP used
+    # ip_range: the ip range used to generate the ip addresses of the routers
+    # ip_mask: the ip mask used to generate the ip addresses of the routers
+
     try:
         f = open(file)
     except Exception:
@@ -93,6 +118,8 @@ def get_intents(file):
 
 
 def handle_output(AS_NUMBER):
+    # handles the output directory 
+
     json_output_name = f'complete_architecture_as_{AS_NUMBER}.json'
     parent_directory = '../output_files/'
     configs_parent_directory = '../output_files/configs/'
@@ -107,6 +134,6 @@ def handle_output(AS_NUMBER):
         os.mkdir(configs_parent_directory)
     except FileExistsError:
         pass
-    return json_output_path, configs_parent_directory
     # creates the required directories to store the output if they are yet to be created
+    return json_output_path, configs_parent_directory #returns the output paths
     
