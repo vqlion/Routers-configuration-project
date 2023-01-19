@@ -42,6 +42,7 @@ def generate_footer():
     return footer
 
 def generate_interface_configuration(interface_name, ip_address, as_number, igp):
+
     interface_config = f'interface {interface_name}\n'
     interface_config += ' no ip address\n'
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n' #verbose constants depending on the interface type
@@ -63,7 +64,7 @@ def generate_loopback_configuration(loopback_address,ip_mask,igp,as_number):
 
     return loopback_config
 
-def generate_iBGP_configuration(as_number, router_number):
+def generate_iBGP_configuration(as_number, router_number, eBGP):
     iBGP_config = f'router bgp {as_number}\n'
     iBGP_config += f' bgp router-id {router_number}.{router_number}.{router_number}.{router_number}\n'
     iBGP_config += ' bgp log-neighbor-changes\n'
@@ -88,11 +89,12 @@ def generate_iBGP_configuration(as_number, router_number):
 
     announced_networks = []
     for routers in archi['architecture']:
-        for neighbors in routers["neighbors"]:
-            neighbor_network = neighbors['link_IP']
-            if not neighbor_network in announced_networks:
-                iBGP_config += f' network {neighbor_network}::/{ip_mask + 16}\n'
-                announced_networks.append(neighbor_network)
+        if eBGP == False:
+            for neighbors in routers["neighbors"]:
+                neighbor_network = neighbors['link_IP']
+                if not neighbor_network in announced_networks:
+                    iBGP_config += f' network {neighbor_network}::/{ip_mask + 16}\n'
+                    announced_networks.append(neighbor_network)
 
     iBGP_config += 'exit-address-family\n'
     iBGP_config += '!\n'
@@ -103,6 +105,8 @@ def generate_iBGP_configuration(as_number, router_number):
     iBGP_config += 'no ip http secure-server\n'
     iBGP_config += '!\n'
 
+    if eBGP == True:
+        iBGP_config += f'ipv6 route {ip_range}/{ip_mask} Null0\n'
     if igp == 'RIP':
         iBGP_config += 'ipv6 router rip ripng\n'
         iBGP_config += ' redistribute connected\n'
@@ -127,6 +131,8 @@ def generate_eBGP_configuration(router_intents, as_number):
         link_IP=ebgp_neighbors["link_IP"]
         eBGP_config += f' neighbor {remote_address} activate\n'
         eBGP_config += f' network {link_IP}\n'
+    
+    eBGP_config += f' network {ip_range}/{ip_mask}\n'
     eBGP_config += 'exit-address-family\n!\n'
 
     return eBGP_config
@@ -191,11 +197,15 @@ for routers in archi['architecture']:
             ip_address = f'{link_ip}::{router_number}/{ip_mask+16}'
             neighbors.update({"ip_address": ip_address})
             config_file.write(generate_interface_configuration(interface_name, ip_address, as_number, igp)) #generates the configuration needed line by line and writes it to the file
-        config_file.write(generate_iBGP_configuration(as_number, router_number))
+
         if "eBGP" in router_intents:
+            config_file.write(generate_iBGP_configuration(as_number, router_number,True))
             config_file.write(generate_EGP_interface(router_intents, as_number, igp))
             config_file.write(generate_eBGP_configuration(router_intents, as_number))
             pass
+        else :
+             config_file.write(generate_iBGP_configuration(as_number, router_number,False))
+             
         if igp == "OSPF": #extra config if OSPF router
             ospf_config = f'ipv6 router ospf {as_number}\n'
             ospf_config += f' router-id {router_number}.{router_number}.{router_number}.{router_number}\n default-information originate always\n!\n'
