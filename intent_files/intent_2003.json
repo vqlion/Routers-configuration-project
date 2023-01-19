@@ -40,7 +40,18 @@
             "router_number": 11
         },
         {
-            "router_number": 12
+            "router_number": 12,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g3/0",
+                    "remote_AS": 2004,
+                    "link_IP":"2003:100:1:100::/64",
+                    "link_mask":64,
+                    "IP_address": "2003:100:1:100::12",
+                    "remote_IP_address": "2003:100:1:100::18"
+                }
+            ]
         },
         {
             "router_number": 13

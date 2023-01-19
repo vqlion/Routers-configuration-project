@@ -1,0 +1,35 @@
+{
+    "architecture": [
+        {
+            "router_number": 18,
+            "neighbors": [
+                {
+                    "interface": "f0/0",
+                    "neighbor_number": 20
+                },
+                {
+                    "interface": "gi2/0",
+                    "neighbor_number": 19
+                }
+            ]
+        },
+        {
+            "router_number": 19,
+            "neighbors": [
+                {
+                    "interface": "f0/0",
+                    "neighbor_number": 18
+                }
+            ]
+        },
+        {
+            "router_number": 20,
+            "neighbors": [
+                {
+                    "interface": "f0/0",
+                    "neighbor_number": 18
+                }
+            ]
+        }
+    ]
+}

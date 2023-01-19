@@ -1,0 +1,29 @@
+{
+    "AS_number": 2001,
+    "architecture_path": "../intent_files/network_arc_2001.json",
+    "IGP": "OSPF",
+    "IP_prefix": "2001:100:1::",
+    "IP_mask": 48,
+    "routers": [
+        {
+            "router_number": 17
+        },
+        {
+            "router_number": 16
+        },
+        {
+            "router_number": 15,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g1/0",
+                    "remote_AS": 2002,
+                    "link_IP":"2001:100:1:100::/64",
+                    "link_mask":64,
+                    "IP_address": "2001:100:1:100::15",
+                    "remote_IP_address": "2001:100:1:100::3"
+                }
+            ]
+        }
+    ]
+}
