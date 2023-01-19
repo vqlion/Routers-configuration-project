@@ -21,7 +21,10 @@
                     "link_IP": "2001:100:1:100::/64",
                     "link_mask": 64,
                     "IP_address": "2001:100:1:100::3",
-                    "remote_IP_address": "2001:100:1:100::15"
+                    "remote_IP_address": "2001:100:1:100::15",
+                    "local_preference": 400,
+                    "community_in": "2002:10",
+                    "community_out": []
                 }
             ]
         },
@@ -41,7 +44,10 @@
                     "link_IP": "2000:100:1:1::/64",
                     "link_mask": 64,
                     "IP_address": "2000:100:1:1::6",
-                    "remote_IP_address": "2000:100:1:1::8"
+                    "remote_IP_address": "2000:100:1:1::8",
+                    "local_preference": 200,
+                    "community_in": "2002:20",
+                    "community_out": ["2002:30", "2002:20"]
                 }
             ]
         },
@@ -55,7 +61,10 @@
                     "link_IP": "2000:100:1:2::/64",
                     "link_mask": 64,
                     "IP_address": "2000:100:1:2::7",
-                    "remote_IP_address": "2000:100:1:2::9"
+                    "remote_IP_address": "2000:100:1:2::9",
+                    "local_preference": 200,
+                    "community_in": "2002:20",
+                    "community_out": ["2002:30", "2002:20"]
                 }
             ]
         }

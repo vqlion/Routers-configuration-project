@@ -21,7 +21,10 @@
                     "link_IP":"2003:100:1:100::/64",
                     "link_mask":64,
                     "IP_address": "2003:100:1:100::18",
-                    "remote_IP_address": "2003:100:1:100::12"
+                    "remote_IP_address": "2003:100:1:100::12",
+                    "local_preference": 400,
+                    "community_in": "2004:10",
+                    "community_out": []
                 }
             ]
         }
