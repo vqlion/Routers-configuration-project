@@ -11,9 +11,8 @@ def generate_header(hostname):
 
     CONSTANT_VERBOSE_1 = f'version 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname {hostname}'
     CONSTANT_VERBOSE_2 = '\n!\nboot-start-marker\nboot-end-marker\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\nmultilink bundle-name authenticated\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n'
-    
-    return CONSTANT_VERBOSE_1 + CONSTANT_VERBOSE_2
 
+    return CONSTANT_VERBOSE_1 + CONSTANT_VERBOSE_2
 
 
 def generate_footer():
@@ -41,15 +40,14 @@ def generate_footer():
     return footer
 
 
-def generate_interface_configuration(interface_name, ip_address, as_number, igp, asbr=False):
+def generate_interface_configuration(interface_name, ip_address, asbr=False):
     # returns the configuration of the interface
     # parameters:
     # interface_name: the name of the interface
     # ip_address: the ip address of the interface
-    # as_number: the AS number of the router
-    # igp: the igp used
     # asbr: a boolean set to True if the router is an asbr
-
+    global AS_NUMBER
+    global IGP
 
     interface_config = f'interface {interface_name}\n'
     interface_config += ' no ip address\n'
@@ -58,41 +56,41 @@ def generate_interface_configuration(interface_name, ip_address, as_number, igp,
     interface_config += f' ipv6 address {ip_address}\n'
     interface_config += ' ipv6 enable\n'
     if not asbr:
-        interface_config += ' ipv6 rip ripng enable\n' if not asbr and igp == 'RIP' else ''
-        interface_config += f' ipv6 ospf {as_number} area 0\n' if igp == 'OSPF' else ''
+        interface_config += ' ipv6 rip ripng enable\n' if not asbr and IGP == 'RIP' else ''
+        interface_config += f' ipv6 ospf {AS_NUMBER} area 0\n' if IGP == 'OSPF' else ''
     interface_config += '!\n'
 
     return interface_config
 
 
-def generate_loopback_configuration(loopback_address, ip_mask, igp, as_number):
+def generate_loopback_configuration(loopback_address):
     # returns the configuration of a loopback interface
     # parameters:
     # loopback_address: the loopback_address
-    # ip_mask: the mask of the adress
-    # igp: the igp used
-    # as_number: the AS number of the router
+    global AS_NUMBER
+    global IGP
+    global IP_MASK
 
     loopback_config = 'interface Loopback0\n no ip address\n'
-    loopback_config += f' ipv6 address {loopback_address}/{ip_mask+16}\n'
+    loopback_config += f' ipv6 address {loopback_address}/{IP_MASK+16}\n'
     loopback_config += ' ipv6 enable\n'
     # extra config if RIP router
-    loopback_config += ' ipv6 rip ripng enable\n' if igp == 'RIP' else ''
+    loopback_config += ' ipv6 rip ripng enable\n' if IGP == 'RIP' else ''
     # extra config if OSPF router
-    loopback_config += f' ipv6 ospf {as_number} area 0\n' if igp == 'OSPF' else ''
+    loopback_config += f' ipv6 ospf {AS_NUMBER} area 0\n' if IGP == 'OSPF' else ''
     loopback_config += '!\n'
 
     return loopback_config
 
 
-def generate_iBGP_configuration(as_number, router_number, eBGP):
+def generate_iBGP_configuration(router_number, eBGP):
     # returns the iBGP configuration of the router
     # parameters:
-    # as_number: the AS number of the router
     # router_number: the id of the router
     # eBGP: a boolean set to true if the router is an ASBR
+    global AS_NUMBER
 
-    iBGP_config = f'router bgp {as_number}\n'
+    iBGP_config = f'router bgp {AS_NUMBER}\n'
     iBGP_config += f' bgp router-id {router_number}.{router_number}.{router_number}.{router_number}\n'
     iBGP_config += ' bgp log-neighbor-changes\n'
     iBGP_config += ' no bgp default ipv4-unicast\n'
@@ -100,7 +98,7 @@ def generate_iBGP_configuration(as_number, router_number, eBGP):
         neighbor_number = routers['abstract_router_number']
         neighbor_loopback = routers['loopback_IP']
         if router_number != neighbor_number:
-            iBGP_config += f' neighbor {neighbor_loopback} remote-as {as_number}\n'
+            iBGP_config += f' neighbor {neighbor_loopback} remote-as {AS_NUMBER}\n'
             iBGP_config += f' neighbor {neighbor_loopback} update-source Loopback0\n'
 
     iBGP_config += '!\n'
@@ -133,8 +131,6 @@ def generate_iBGP_configuration(as_number, router_number, eBGP):
     iBGP_config += 'no ip http secure-server\n'
     iBGP_config += '!\n'
 
-    if eBGP == True:
-        iBGP_config += f'ipv6 route {IP_RANGE}/{IP_MASK} Null0\n'
     if IGP == 'RIP':
         iBGP_config += 'ipv6 router rip ripng\n'
         iBGP_config += ' redistribute connected\n'
@@ -146,13 +142,13 @@ def generate_iBGP_configuration(as_number, router_number, eBGP):
     return iBGP_config
 
 
-def generate_eBGP_configuration(router_intents, as_number):
+def generate_eBGP_configuration(router_intents):
     # returns the eBGP configuration of a router's interface
     # parameters:
     # router_intents: a dictionnary containing the eBGP intents of the interface
-    # as_number: the AS number of the router
+    global AS_NUMBER
 
-    eBGP_config = f'router bgp {as_number}\n'
+    eBGP_config = f'router bgp {AS_NUMBER}\n'
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
         remote_as = ebgp_neighbors["remote_AS"]
@@ -168,18 +164,19 @@ def generate_eBGP_configuration(router_intents, as_number):
 
     eBGP_config += f' network {IP_RANGE}/{IP_MASK}\n'
     eBGP_config += 'exit-address-family\n!\n'
+    eBGP_config += f'ipv6 route {IP_RANGE}/{IP_MASK} Null0\n!\n'
 
     return eBGP_config
 
 
-def generate_eBGP_interface(router_intents, as_number, igp):
+def generate_eBGP_interface(router_intents):
     # returns the configuration of an eBGP interface
     # parameters:
     # router_intents: a dictionnary containing the eBGP intents of the interface
-    # as_number: the AS number of the router
-    # igp: the IGP used
-    
-    asbr = True
+    global AS_NUMBER
+    global IGP
+
+    ASBR = True
     interface_config = ''
     for ebgp_interfaces in router_intents["eBGP_config"]:
         interface = ebgp_interfaces["interface"]
@@ -187,9 +184,44 @@ def generate_eBGP_interface(router_intents, as_number, igp):
         ip_mask = ebgp_interfaces["link_mask"]
         ip_address += f'/{ip_mask}'
         interface_config += generate_interface_configuration(
-            interface, ip_address, as_number, igp, asbr)
+            interface, ip_address, ASBR)
 
     return interface_config
+
+
+def generate_BGP_policies(router_intents):
+    BGP_configuration = ''
+    count = 0
+    for eBGP_neighbor in router_intents["eBGP_config"]:
+        local_preference = eBGP_neighbor["local_preference"]
+        community_in = eBGP_neighbor["community_in"]
+        neighbor_IP_address = eBGP_neighbor["remote_IP_address"]
+        communities_out = []
+        for community in eBGP_neighbor["community_out"]:
+            communities_out.append(community)
+            BGP_configuration += f'ip community-list standard {community}_out permit {community}\n'
+
+        BGP_configuration += '!\n'
+        BGP_configuration += f'route-map community_in_{count} permit 10\n'
+        BGP_configuration += f' set community {community_in}\n'
+        BGP_configuration += f' set local-preference {local_preference}\n'
+        BGP_configuration += '!\n'
+        BGP_configuration += f'route-map deny_out_{count} deny 10\n'
+        for community in communities_out:
+            BGP_configuration += f' match community {community}_out\n'
+
+        BGP_configuration += '!\n'
+        BGP_configuration += f'route-map deny_out_{count} permit 100\n!\n'
+
+        BGP_configuration += f'router bgp {AS_NUMBER}\n'
+        BGP_configuration += 'address-family ipv6\n'
+        BGP_configuration += f' neighbor {neighbor_IP_address} route-map community_in_{count} in\n'
+        BGP_configuration += f' neighbor {neighbor_IP_address} route-map deny_out_{count} out\n'
+        BGP_configuration += 'exit-address-family\n!\n'
+
+        count +=1
+
+    return BGP_configuration
 
 
 if len(sys.argv) != 2:
@@ -228,7 +260,7 @@ for routers in archi['architecture']:
         # Writing configuration of the loopback addresses
         loopback_address = routers["loopback_IP"]
         config_file.write(generate_loopback_configuration(
-            loopback_address, IP_MASK, IGP, AS_NUMBER))
+            loopback_address))
 
         for neighbors in routers['neighbors']:
             # Writing the configuration of the non-ebgp interfaces
@@ -237,27 +269,29 @@ for routers in archi['architecture']:
             ip_address = f'{link_ip}::{router_number}/{IP_MASK+16}'
             neighbors.update({"ip_address": ip_address})
             config_file.write(generate_interface_configuration(
-                interface_name, ip_address, AS_NUMBER, IGP))
+                interface_name, ip_address))
 
         if "eBGP" in router_intents:
             # specific iBGP configuration for eBGP routers
             config_file.write(generate_iBGP_configuration(
-                AS_NUMBER, router_number, True))
+                router_number, True))
 
             # specific interface configuration on eBGP interfaces
             config_file.write(generate_eBGP_interface(
-                router_intents, AS_NUMBER, IGP))
+                router_intents))
 
             # configuration of the eBGP neighbors
             config_file.write(generate_eBGP_configuration(
-                router_intents, AS_NUMBER))
+                router_intents))
+
+            config_file.write(generate_BGP_policies(router_intents))
         else:
             # basic iBGP configuration if the router isn't ASBR
             config_file.write(generate_iBGP_configuration(
-                AS_NUMBER, router_number, False))
+                router_number, False))
 
         # extra config if OSPF router
-        if IGP == "OSPF":  
+        if IGP == "OSPF":
             ospf_config = f'ipv6 router ospf {AS_NUMBER}\n'
             ospf_config += f' router-id {router_number}.{router_number}.{router_number}.{router_number}\n default-information originate always\n!\n'
             config_file.write(ospf_config)
@@ -270,7 +304,7 @@ for routers in archi['architecture']:
 with open(json_output_path, 'w') as json_file:
     json.dump(archi, json_file,
               indent=4,
-              separators=(',', ': '))  
+              separators=(',', ': '))
 
 print("Done! The configuration of each router is located at",
       configs_parent_directory)

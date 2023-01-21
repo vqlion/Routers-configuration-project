@@ -57,7 +57,7 @@
                     "IP_address": "2003:100:1:100::12",
                     "remote_IP_address": "2003:100:1:100::18",
                     "local_preference": 100,
-                    "community_in": "2003:40",
+                    "community_in": "2003:30",
                     "community_out": ["2003:20"]
                 }
             ]
