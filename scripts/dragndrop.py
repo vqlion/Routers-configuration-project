@@ -6,7 +6,7 @@ import shutil
 
 
 
-with open('/mnt/c/INSALyonTC/GNS3_Project_3TC/intent_files/dragndrop.json', 'r') as file:
+with open('/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/intent_files/dragndrop.json', 'r') as file:
     architecture = json.load(file)
 
     for router in architecture['architecture']:

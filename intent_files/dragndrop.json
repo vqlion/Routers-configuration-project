@@ -2,115 +2,145 @@
     "architecture": [
         {
             "router_number": 1,
-            "removed_file": "C:\\projet_GNS3\\project-files\\dynamips\\b51ccf5e-4fd6-4412-931b-73faa1445566\\configs\\i1_startup-config.cfg",
-                
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i1_startup-config.cfg"
+            "removed_file": "../../../../GNS3/projects/projet_GNS3/project-files/dynamips/b51ccf5e-4fd6-4412-931b-73faa1445566/configs/i1_startup-config.cfg",               
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i1_startup-config.cfg"
       
                 
             
         },
         {
             "router_number": 2,
-            "removed_file": "C:\\projet_GNS3\\project-files\\dynamips\\e58c5662-6d45-4798-aeb3-011db479c2f0\\configs\\i2_startup-config.cfg",
-               
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i2_startup-config.cfg"
+            "removed_file": "../../../../GNS3/projects/projet_GNS3/project-files/dynamips/e58c5662-6d45-4798-aeb3-011db479c2f0/configs/i2_startup-config.cfg",              
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i2_startup-config.cfg"
           
             
         },
         {
             "router_number": 3,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\4215d319-10b6-41df-806d-b33fab8c681c\\configs\\i3_startup-config.cfg",
-                
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i3_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/4215d319-10b6-41df-806d-b33fab8c681c/configs/i3_startup-config.cfg",                
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i3_startup-config.cfg"
             
             
         },
         {
             "router_number": 4,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\cffd55b0-24d8-4140-8d72-e327a37814c5\\configs\\i4_startup-config.cfg",
-                
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i4_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/cffd55b0-24d8-4140-8d72-e327a37814c5/configs/i4_startup-config.cfg",
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i4_startup-config.cfg"
            
             
         },
         {
             "router_number": 5,
-           "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\961f3764-85e2-4a1b-b650-ed27c5ae41c8\\configs\\i5_startup-config.cfg",
-                
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i5_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/961f3764-85e2-4a1b-b650-ed27c5ae41c8/configs/i5_startup-config.cfg",
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i5_startup-config.cfg"
           
             
         },
         {
             "router_number": 6,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\51259b36-8ebf-4465-8f66-9f86028ab1ba\\configs\\i6_startup-config.cfg",
-                
-             "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i6_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/51259b36-8ebf-4465-8f66-9f86028ab1ba/configs/i6_startup-config.cfg",
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i6_startup-config.cfg"
            
             
         },
         {
             "router_number": 7,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\372e1a57-e182-4ef9-a4b8-6a0e38a2b5fc\\configs\\i7_startup-config.cfg",
-                
-             "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i7_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/372e1a57-e182-4ef9-a4b8-6a0e38a2b5fc/configs/i7_startup-config.cfg",  
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i7_startup-config.cfg"
             
             
         },
         {
             "router_number": 8,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\68052a79-279e-41eb-9f17-826330a67a3a\\configs\\i8_startup-config.cfg",
-             "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i8_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/68052a79-279e-41eb-9f17-826330a67a3a/configs/i8_startup-config.cfg",
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i8_startup-config.cfg"
                 
           
         },
         {
             "router_number": 9,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\8b5079c7-826e-47f7-a6ba-d20b7c7fe876\\configs\\i9_startup-config.cfg",
-                
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i9_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/8b5079c7-826e-47f7-a6ba-d20b7c7fe876/configs/i9_startup-config.cfg",               
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i9_startup-config.cfg"
              
             
         },
         {
             "router_number": 10,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\0e4d08e1-7832-4d9d-a425-7b4c045cdcd9\\configs\\i10_startup-config.cfg",
-            
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i10_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/0e4d08e1-7832-4d9d-a425-7b4c045cdcd9/configs/i10_startup-config.cfg",
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i10_startup-config.cfg"
            
             
         },
         {
              "router_number": 11,
-             "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\94a0a376-a3f8-4904-b642-3d54446235a5\\configs\\i11_startup-config.cfg",
-                
-             "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i11_startup-config.cfg"
+             "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/94a0a376-a3f8-4904-b642-3d54446235a5/configs/i11_startup-config.cfg",   
+             "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i11_startup-config.cfg"
             
             
         },
         {
             "router_number": 12,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\5508f1fa-8d00-4f3e-b365-3dd1b766ea81\\configs\\i12_startup-config.cfg",
-                
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i12_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/5508f1fa-8d00-4f3e-b365-3dd1b766ea81/configs/i12_startup-config.cfg",   
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i12_startup-config.cfg"
              
             
         },
         {
             "router_number": 13,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\ea5e5258-e643-45c7-9abb-92e7c86369d3\\configs\\i13_startup-config.cfg",
-                
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i13_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/ea5e5258-e643-45c7-9abb-92e7c86369d3/configs/i13_startup-config.cfg",   
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i13_startup-config.cfg"
                 
             
         },
         {
             "router_number": 14,
-            "removed_file":"C:\\projet_GNS3\\project-files\\dynamips\\61710224-2f57-4c14-aafe-07d7d97743ed\\configs\\i14_startup-config.cfg",
-                
-            "source_file": "C:\\INSALyonTC\\GNS3_Project_3TC\\output_files\\configs\\i14_startup-config.cfg"
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/61710224-2f57-4c14-aafe-07d7d97743ed/configs/i14_startup-config.cfg",    
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i14_startup-config.cfg"
             
+            
+        },
+        {
+            "router_number": 15,
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/fb08a403-da0f-42e2-98ec-d58dbf106ce2/configs/i15_startup-config.cfg",   
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i15_startup-config.cfg"
+                
+            
+        },
+        {
+            "router_number": 16,
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/6733fd70-00a2-4e41-b163-f80894f58188/configs/i16_startup-config.cfg",   
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i16_startup-config.cfg"
+                
+            
+        },
+        {
+            "router_number": 17,
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/a0541d73-f950-49a8-8043-6801a7801ea3/configs/i17_startup-config.cfg",   
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i17_startup-config.cfg"
+                
+            
+        },
+        {
+            "router_number": 18,
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/c7220e06-1671-412e-a135-3ac7b8d6ddc2/configs/i18_startup-config.cfg",   
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i18_startup-config.cfg"
+                
+            
+        },
+        {
+            "router_number": 19,
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/fec52b36-91b9-4b77-9648-c3327e960488/configs/i19_startup-config.cfg",   
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i19_startup-config.cfg"
+                
+            
+        },
+        {
+            "router_number": 20,
+            "removed_file":"../../../../GNS3/projects/projet_GNS3/project-files/dynamips/028edca7-43b4-4a21-bb0a-f7733905eda8/configs/i20_startup-config.cfg",   
+            "source_file": "/home/rdjimtoing/Documents/Projet GNS3/GNS3_Project_3TC/output_files/configs/i20_startup-config.cfg"
+                
             
         }
+
     ]
 }
