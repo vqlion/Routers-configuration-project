@@ -221,7 +221,7 @@ def generate_BGP_policies(router_intents):
         BGP_configuration += f'router bgp {AS_NUMBER}\n'
         BGP_configuration += 'address-family ipv6\n'
         BGP_configuration += f' neighbor {neighbor_IP_address} route-map community_in_{count} in\n'
-        BGP_configuration += f' neighbor {neighbor_IP_address} route-map deny_out_{count} out\n'
+        BGP_configuration += f' neighbor {neighbor_IP_address} route-map deny_out_{count} out\n' if len(communities_out) > 0 else ''
         BGP_configuration += 'exit-address-family\n!\n'
 
         count +=1
