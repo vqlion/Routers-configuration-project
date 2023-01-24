@@ -40,10 +40,12 @@
             ]
         },
         {
-            "router_number": 10
+            "router_number": 10,
+            "cost": 100
         },
         {
-            "router_number": 11
+            "router_number": 11,
+            "cost": 100
         },
         {
             "router_number": 12,

@@ -50,6 +50,9 @@ def generate_interface_configuration(interface_name, ip_address, asbr=False):
     global IGP
 
     interface_config = f'interface {interface_name}\n'
+    if "cost" in router_intents:
+                interface_cost= router_intents["cost"]
+                interface_config += f'bandwidth {interface_cost}\n'
     interface_config += ' no ip address\n'
     # verbose constants depending on the interface type
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n'
@@ -57,7 +60,9 @@ def generate_interface_configuration(interface_name, ip_address, asbr=False):
     interface_config += ' ipv6 enable\n'
     if not asbr:
         interface_config += ' ipv6 rip ripng enable\n' if not asbr and IGP == 'RIP' else ''
-        interface_config += f' ipv6 ospf {AS_NUMBER} area 0\n' if IGP == 'OSPF' else ''
+        if IGP == 'OSPF':
+            interface_config += f' ipv6 ospf {AS_NUMBER} area 0\n' 
+        else : ''
     interface_config += '!\n'
 
     return interface_config
@@ -270,6 +275,7 @@ for routers in archi['architecture']:
             neighbors.update({"ip_address": ip_address})
             config_file.write(generate_interface_configuration(
                 interface_name, ip_address))
+
 
         if "eBGP" in router_intents:
             # specific iBGP configuration for eBGP routers
