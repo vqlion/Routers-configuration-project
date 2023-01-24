@@ -50,9 +50,6 @@ def generate_interface_configuration(interface_name, ip_address, asbr=False):
     global IGP
 
     interface_config = f'interface {interface_name}\n'
-    if "cost" in router_intents:
-                interface_cost= router_intents["cost"]
-                interface_config += f'bandwidth {interface_cost}\n'
     interface_config += ' no ip address\n'
     # verbose constants depending on the interface type
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n'
@@ -67,6 +64,16 @@ def generate_interface_configuration(interface_name, ip_address, asbr=False):
 
     return interface_config
 
+def generate_cost_configuration(router_intents):
+    cost_config=''
+    if "cost_parameters" in router_intents:
+        cost_parameters = router_intents["cost_parameters"]
+        for cost_configuration in cost_parameters:
+            cost=cost_configuration["cost"]
+            interface=cost_configuration["interface"]
+            cost_config += f'interface {interface}\n'
+            cost_config += f'ipv6 ospf cost {cost}\n!\n'
+    return cost_config
 
 def generate_loopback_configuration(loopback_address):
     # returns the configuration of a loopback interface
@@ -254,7 +261,6 @@ for routers in archi['architecture']:
     config_file_name = f'{router_name}_startup-config.cfg'
     router_intents = next(
         item for item in router_intent_list if item['router_number'] == router_number)
-
     output_path = os.path.join(configs_parent_directory, config_file_name)
 
     # opening the file the script is going to write the configuration into
@@ -275,6 +281,7 @@ for routers in archi['architecture']:
             neighbors.update({"ip_address": ip_address})
             config_file.write(generate_interface_configuration(
                 interface_name, ip_address))
+        config_file.write(generate_cost_configuration(router_intents))
 
 
         if "eBGP" in router_intents:

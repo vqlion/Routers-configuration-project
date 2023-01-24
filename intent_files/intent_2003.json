@@ -41,11 +41,21 @@
         },
         {
             "router_number": 10,
-            "cost": 100
+            "cost_parameters":[
+                {
+                    "cost":100,
+                    "interface": "g1/0"
+                }
+            ] 
         },
         {
             "router_number": 11,
-            "cost": 100
+            "cost_parameters":[
+                {
+                    "cost":100,
+                    "interface": "g1/0"
+                }
+            ] 
         },
         {
             "router_number": 12,
