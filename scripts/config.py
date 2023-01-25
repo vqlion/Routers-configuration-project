@@ -214,9 +214,15 @@ def generate_BGP_policies(router_intents):
             BGP_configuration += f'ip community-list standard {community}_out permit {community}\n'
 
         BGP_configuration += '!\n'
+        BGP_configuration += f'ipv6 access-list private_ipv6_list\n'
+        BGP_configuration += f' permit ipv6 FD00::/8 any \n'
+        BGP_configuration += '!\n'
         BGP_configuration += f'route-map map_in_{count} permit 10\n'
         BGP_configuration += f' set community {community_in}\n'
         BGP_configuration += f' set local-preference {local_preference}\n'
+        BGP_configuration += '!\n'
+        BGP_configuration += f'route-map map_in_{count} deny 1\n'
+        BGP_configuration += f' match ipv6 address private_ipv6_list\n'
         BGP_configuration += '!\n'
         BGP_configuration += f'route-map map_out_{count} deny 10\n'
         for community in communities_out:
