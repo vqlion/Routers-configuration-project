@@ -1,0 +1,26 @@
+{
+    "AS_number": 2005,
+    "architecture_path": "../intent_files/network_arc_2005.json",
+    "IGP": "OSPF",
+    "IP_prefix": "2005:100:1::",
+    "IP_mask": 48,
+    "routers": [
+        {
+            "router_number": 21,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "f0/0",
+                    "remote_AS": 2003,
+                    "link_IP":"2005:100:1:100::/64",
+                    "link_mask":64,
+                    "IP_address": "2005:100:1:100::21",
+                    "remote_IP_address": "2003:100:1:100::13",
+                    "local_preference": 80,
+                    "community_in": "2005:30",
+                    "community_out": ["2005:20"]
+                }
+            ]
+        }
+    ]
+}

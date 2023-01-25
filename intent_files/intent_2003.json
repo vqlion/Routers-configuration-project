@@ -75,7 +75,21 @@
             ]
         },
         {
-            "router_number": 13
+            "router_number": 13,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g3/0",
+                    "remote_AS": 2005,
+                    "link_IP":"2005:100:1:100::/64",
+                    "link_mask":64,
+                    "IP_address": "2005:100:1:100::13",
+                    "remote_IP_address": "2005:100:1:100::21",
+                    "local_preference": 400,
+                    "community_in": "2003:10",
+                    "community_out": []
+                }
+            ]
         },
         {
             "router_number": 14
