@@ -214,21 +214,21 @@ def generate_BGP_policies(router_intents):
             BGP_configuration += f'ip community-list standard {community}_out permit {community}\n'
 
         BGP_configuration += '!\n'
-        BGP_configuration += f'route-map community_in_{count} permit 10\n'
+        BGP_configuration += f'route-map map_in_{count} permit 10\n'
         BGP_configuration += f' set community {community_in}\n'
         BGP_configuration += f' set local-preference {local_preference}\n'
         BGP_configuration += '!\n'
-        BGP_configuration += f'route-map deny_out_{count} deny 10\n'
+        BGP_configuration += f'route-map map_out_{count} deny 10\n'
         for community in communities_out:
             BGP_configuration += f' match community {community}_out\n'
 
         BGP_configuration += '!\n'
-        BGP_configuration += f'route-map deny_out_{count} permit 100\n!\n'
+        BGP_configuration += f'route-map map_out_{count} permit 100\n!\n'
 
         BGP_configuration += f'router bgp {AS_NUMBER}\n'
         BGP_configuration += 'address-family ipv6\n'
-        BGP_configuration += f' neighbor {neighbor_IP_address} route-map community_in_{count} in\n'
-        BGP_configuration += f' neighbor {neighbor_IP_address} route-map deny_out_{count} out\n' if len(communities_out) > 0 else ''
+        BGP_configuration += f' neighbor {neighbor_IP_address} route-map map_in_{count} in\n'
+        BGP_configuration += f' neighbor {neighbor_IP_address} route-map map_out_{count} out\n' if len(communities_out) > 0 else ''
         BGP_configuration += 'exit-address-family\n!\n'
 
         count +=1
