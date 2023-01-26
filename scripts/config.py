@@ -204,7 +204,7 @@ def generate_eBGP_configuration(router_intents):
     '''
       Returns the external BGP configuration 
         Parameters:
-                router_intents(): a dictionary which contains the actual commands for eBGP configuration for a router 
+            router_intents(): a dictionary which contains the actual commands for eBGP configuration for a router 
         Returns:
             generate_eBGP_configuration(str): A String on multiple lines which is the configuration of the external BGP for each router
     '''
@@ -241,7 +241,7 @@ def generate_eBGP_interface(router_intents):
     '''
       Returns the external BGP configuration of the interface 
         Parameters:
-                router_intents(): a dictionary which contains the actual commands for eBGP configuration for an interface
+            router_intents(): a dictionary which contains the actual commands for eBGP configuration for an interface
         Returns:
             generate_eBGP_interface(str): A String on multiple lines which is the configuration of the external BGP for each interface 
     '''
@@ -268,8 +268,9 @@ def generate_BGP_policies(router_intents):
         -  Making the Communities
         -  Filtering the private IP addresses
         -  AS prepanding
+                                   
         Parameters:
-                router_intents(): a dictionary  
+            router_intents(): a dictionary  
         Returns:
             generate_BGP_policies(str): A String on multiple lines which configures each BGP policy  
     '''
