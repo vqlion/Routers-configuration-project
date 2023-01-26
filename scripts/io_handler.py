@@ -67,7 +67,7 @@ def generate_ip_address(json_file, ip_range, ip_mask):
 
     #loops over the links and creates a new ip for each link, stores in a list
     for i in range(1, count + 1):
-        r=f'{i}'
+        r=f'{i:X}'
         ip_list.append(f'{ip_range_input}{r}')
 
     #affects an ip to each link and stores it in the dict from the architecture json file
