@@ -24,7 +24,8 @@
                     "remote_IP_address": "2003:100:1:100::12",
                     "local_preference": 400,
                     "community_in": "2004:10",
-                    "community_out": []
+                    "community_out": [],
+                    "AS_path_prepend": 4
                 }
             ]
         }
