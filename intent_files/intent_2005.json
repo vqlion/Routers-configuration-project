@@ -15,7 +15,7 @@
                     "link_IP":"2005:100:1:100::/64",
                     "link_mask":64,
                     "IP_address": "2005:100:1:100::21",
-                    "remote_IP_address": "2003:100:1:100::13",
+                    "remote_IP_address": "2005:100:1:100::13",
                     "local_preference": 80,
                     "community_in": "2005:30",
                     "community_out": ["2005:20"]
