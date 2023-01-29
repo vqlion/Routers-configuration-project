@@ -20,7 +20,7 @@ Here is an example of what that file must look like:
 ```
 
  - ```AS_number``` is the AS number of the network
- - ```architecture_path``` is the path of the architecture json file, which describes the physical links between the routers in the network. See [architecture](#architecture) for this file's syntax
+ - ```architecture_path``` is the path of the architecture json file, which describes the physical links between the routers in the network. See [architecture](#architecture-file) for this file's syntax
  - ```IGP``` is the IGP desired for the network (RIP or OSPF)
  - ```IP_prefix``` is the IP prefix desired to address the physical interfaces of the routers
  - ```IP_mask``` is the mask associated to the latter

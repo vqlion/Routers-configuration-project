@@ -15,7 +15,7 @@ Automation of the generation of router configurations. Feed the program an inten
 ## Intent files
 The intent and architecture files must be json files following a particular format. They can be found in the [intent files folder](./intent_files/). 
 
-The full documentation about the intent files syntax can be found [here](./intent_files/intents_syntax.md).
+The full documentation about the intent files syntax can be found [here](./intent_files/README.md).
 
 ## Usage
 
@@ -24,7 +24,7 @@ cd scripts
 python3 config.py {intent_file_path}
 ```
 
-```intent_file_path``` being the path of the intent file. See [intent files syntax](./intent_files/intents_syntax.md).
+```intent_file_path``` being the path of the intent file. See [intent files syntax](./intent_files/README.md).
 
 ## Team
 [Rebecca Djimtoingar](https://github.com/rebeccadjim), [Alexandru Baciu](https://github.com/bachusutopian) and [Valentin Jossic](https://github.com/vqlion)
