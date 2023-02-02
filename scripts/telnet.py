@@ -1,13 +1,8 @@
 import telnetlib
 import io_handler as io_h
 import sys
-import time
 
 HOST = "localhost"
-
-AS_NUMBER = 2003
-IGP = 'OSPF'
-IP_MASK = 48
 
 def generate_interface_configuration(interface_name, ip_address, tn, asbr=False):
     # returns the configuration of the interface
@@ -167,7 +162,7 @@ def generate_eBGP_configuration(router_intents, tn):
 
     tn.write(str.encode(f'network {IP_RANGE}/{IP_MASK}\r\n'))
     tn.write(b'end\r\n')
-    tn.read_very_eager()
+    tn.read_until(b'Configured from console by console')
 
     tn.write(b'conf t\r\n')
     tn.write(str.encode(f'ipv6 route {IP_RANGE}/{IP_MASK} Null0\r\n'))
@@ -204,19 +199,24 @@ def generate_BGP_policies(router_intents, tn):
         tn.write(b'ipv6 access-list private_ipv6_list\r\n')
         tn.write(b'permit ipv6 FD00::/8 any\r\n')
 
+        tn.write(str.encode(f'no route-map map_in_{count} permit 10\r\n'))
         tn.write(str.encode(f'route-map map_in_{count} permit 10\r\n'))
         tn.write(str.encode(f'set community {community_in}\r\n'))
         tn.write(str.encode(f'set local-preference {local_preference}\r\n'))
         tn.write(b'exit\r\n')
 
+        tn.write(str.encode(f'no route-map map_in_{count} deny 1\r\n'))
         tn.write(str.encode(f'route-map map_in_{count} deny 1\r\n'))
         tn.write(b'match ipv6 address private_ipv6_list\r\n')
         tn.write(b'exit\r\n')
 
-        tn.write(str.encode(f'route-map map_out_{count} deny 10\r\n'))
-        for community in communities_out:
-            tn.write(str.encode(f'match community {community}_out\r\n'))
-        tn.write(b'exit\r\n')
+        tn.write(str.encode(f'no route-map map_out_{count} deny 10\r\n'))
+        if len(communities_out) > 0:
+            tn.write(str.encode(f'route-map map_out_{count} deny 10\r\n'))
+            for community in communities_out:
+                tn.write(b'no match community\r\n')
+                tn.write(str.encode(f'match community {community}_out\r\n'))
+            tn.write(b'exit\r\n')
 
         tn.write(str.encode(f'route-map map_out_{count} permit 100\r\n'))
         tn.write(b'exit\r\n')
@@ -227,8 +227,9 @@ def generate_BGP_policies(router_intents, tn):
         tn.write(str.encode(f'neighbor {neighbor_IP_address} route-map map_out_{count} out\r\n'))
 
         tn.write(b'end\r\n')
+        tn.read_until(b'Configured from console by console')
 
-         #AS-Path prepending configuration 
+        #AS-Path prepending configuration 
         tn.write(b'conf t\r\n')
         if "AS_path_prepend" in eBGP_neighbor:
             tn.write(str.encode(f'route-map map_out_{count} permit 5\r\n'))
@@ -301,34 +302,48 @@ def generate_iBGP_configuration(router_number, eBGP_asbr, tn):
     tn.read_very_eager()
     
 
-if len(sys.argv) != 2:
+if len(sys.argv) < 2:
     print('Provide the path of the intent file as an argument')
     sys.exit(1)
 
 intent_path = sys.argv[1]
 
+target_router = None
+if len(sys.argv) == 3: 
+    try:
+        int(sys.argv[2])
+    except:
+        print('Provide the desired router name as the id of this router (a number)')
+        sys.exit(1)
+    target_router = int(sys.argv[2])
 
 AS_NUMBER, AS_INTENTS, ARCHITECTURE_PATH, IGP, IP_RANGE, IP_MASK = io_h.get_intents(
     intent_path)
 router_intent_list = AS_INTENTS["routers"]
-print("Generating the configuration of AS", AS_NUMBER, "...")
+if target_router == None: print("Starting the configuration of the routers in AS", AS_NUMBER, "...")
+else: print("Starting the configuration of router", target_router, "...")
 
 archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_MASK)
 
 for routers in archi['architecture']:
     # declaration of constants relative to the router
     router_number = routers['abstract_router_number']
+    if target_router != None and target_router != router_number:
+        continue
     router_name = f'i{router_number}'
     config_file_name = f'{router_name}_startup-config.cfg'
     router_intents = next(
         item for item in router_intent_list if item['router_number'] == router_number)
 
     with telnetlib.Telnet(HOST, 5000 + router_number - 1) as tn:
+        # cleanip the terminal 
         tn.write(b'\r\n')
         tn.write(b'\r\n')
         tn.read_very_eager()
+
         loopback_address = routers["loopback_IP"]
         generate_loopback_configuration(loopback_address, tn)
+        tn.read_until(b'Configured from console by console') #waits until the command was effectively interpreted
 
         for neighbors in routers['neighbors']:
             interface_name = neighbors['interface']
@@ -336,31 +351,29 @@ for routers in archi['architecture']:
             ip_address = f'{link_ip}::{router_number}/{IP_MASK+16}'
             neighbors.update({"ip_address": ip_address})
             generate_interface_configuration(interface_name, ip_address, tn)
-            print(router_number, interface_name, tn.read_very_eager())
+            tn.read_until(b'Configured from console by console')
 
         generate_cost_configuration(router_intents, tn)
         if "eBGP" in router_intents:
             generate_iBGP_configuration(router_number, True, tn)
+            tn.read_until(b'Configured from console by console')
+
             generate_eBGP_interface(router_intents, tn)
+            tn.read_until(b'Configured from console by console')
+
             generate_eBGP_configuration(router_intents, tn)
+            tn.read_until(b'Configured from console by console')
+            
             generate_BGP_policies(router_intents, tn)
+            tn.read_until(b'Configured from console by console')
 
         else:
             generate_iBGP_configuration(router_number, False, tn)
+            tn.read_until(b'Configured from console by console')
 
         if IGP == "OSPF":
             generate_OSPF_configuration(router_number, tn)
 
-        time.sleep(15)
-            
-#     tn.write(b'end\r\n')
-#     tn.write(b'end\r\n')
-#     tn.write(b'conf t\r\n')
-#     tn.write(b'int g2/0\r\n')
-#     tn.write(b'no ip address\r\n')
-#     tn.write(b'no ipv6 address\r\n')
-#     tn.write(b'ipv6 address 2002:100:1:8::FFE/64\r\n')
-#     tn.write(b'ipv6 enable\r\n')
-#     tn.write(b'ipv6 rip ripng enable\r\n')
-#     tn.write(b'no shutdown\r\n')
-#     tn.write(b'end\r\n')
+    print("Router", router_name, "done!")
+
+print("All routers have been configured!")
