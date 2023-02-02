@@ -296,9 +296,10 @@ def generate_BGP_policies(router_intents):
         BGP_configuration += f'route-map map_in_{count} deny 1\n'
         BGP_configuration += f' match ipv6 address private_ipv6_list\n'
         BGP_configuration += '!\n'
-        BGP_configuration += f'route-map map_out_{count} deny 10\n'
-        for community in communities_out:
-            BGP_configuration += f' match community {community}_out\n'
+        if len(communities_out) > 0:
+            BGP_configuration += f'route-map map_out_{count} deny 10\n'
+            for community in communities_out:
+                BGP_configuration += f' match community {community}_out\n'
 
         BGP_configuration += '!\n'
         BGP_configuration += f'route-map map_out_{count} permit 100\n!\n'
@@ -309,8 +310,7 @@ def generate_BGP_policies(router_intents):
         BGP_configuration += f' neighbor {neighbor_IP_address} route-map map_out_{count} out\n' 
         BGP_configuration += 'exit-address-family\n!\n'
 
-         #AS-Path prepending configuration 
-        
+        #AS-Path prepending configuration 
         if "AS_path_prepend" in eBGP_neighbor:
             BGP_configuration += f"route-map map_out_{count} permit 5\n"
             BGP_configuration += f' set as-path prepend '

@@ -121,8 +121,8 @@ def handle_output(AS_NUMBER):
     # handles the output directory 
 
     json_output_name = f'complete_architecture_as_{AS_NUMBER}.json'
-    parent_directory = '../output_files/'
-    configs_parent_directory = '../output_files/configs/'
+    parent_directory = '../output/'
+    configs_parent_directory = '../output/configs/'
     json_output_path = os.path.join(parent_directory, json_output_name)
 
     try:
