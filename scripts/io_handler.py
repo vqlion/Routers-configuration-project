@@ -9,6 +9,14 @@ def get_minimun_router_number(arc):
     # returns the minimum router id in the network
     # parameters:
     # arc: a dictionary representing the architecture of the network
+    '''
+    Returns the minimum router ID in the network  
+        Parameters: 
+                arc(dict): a dictionary which represents the architecture of the network
+        Returns:
+               get_minimun_router_number(int): An integer  meaning the minimum router ID
+
+    '''
 
     min = 99999999999
     for routers in arc['architecture']:
@@ -23,7 +31,22 @@ def load(file_path):
     # link_count: the number of links in the network
     # adjacency_matrix: the adjacency matrix of the network
     # arc: a modified dictionnary representing the opened json file
+    '''
+    Returns a tuple of three values
+        Parameters: 
+                file_path(str): a string which contains the path of a JSON file
+        Method:
+                "link_count": the number of links in the network, calculated by counting the number of connections and dividing by 2
+                "adjacency_matrix": a two-dimensional matrix representation of the connections between routers in the network
+                "arc": a modified version of the original dictionary loaded from the JSON file, 
+                       where each router and its neighbors have been assigned new "router_number" and "neighbor_number" values,
+                       based on the minimum router number in the network
+                       The original "router_number" and "neighbor_number" values are stored as "abstract_router_number" and "abstract_neighbor_number".
+                    
+        Returns:
+               load(tuple): A tuple  meaning the link count, adjacency matrix, and modified dictionary representation of the file
 
+    '''    
     f = open(file_path)
     arc = json.load(f)
 
@@ -55,7 +78,15 @@ def generate_ip_address(json_file, ip_range, ip_mask):
     # json_file: the path of the json file containing the architecture of the network
     # ip_range: the ip range used to generate the ip addresses
     # ip_mask: the ip max used to generate the ip addresses
-
+    '''
+    Returns a tuple of three values
+        Parameters: 
+                json_file(str): a string which contains the path of a JSON file
+                ip_range(str): a string representing the range of IP addresses used to generate IP addresses for the network interfaces
+                ip_mask(str): a string representing the IP mask used to generate IP addresses for the network interfaces
+        Returns:
+               generate_ip_address(dict): A dictionary updated with with the subnetworks' IP range information 
+    ''' 
     count, matrix, arc = load(json_file)
 
     ip_list = []
@@ -100,7 +131,20 @@ def get_intents(file):
     # igp: the IGP used
     # ip_range: the ip range used to generate the ip addresses of the routers
     # ip_mask: the ip mask used to generate the ip addresses of the routers
-
+    '''
+    Returns a tuple of six values
+        Parameters: 
+                file(str): represents the path to a file which contains information in a JSON format
+        Method: 
+                as_number(int): an integer that represents the AS number of the network
+                intents(dict): a dictionary that represents the intent file
+                               architecture_path: a string that contains the path of the JSON file containing the architecture of the network
+                igp(str): a string that represents the IGP used
+                ip_range(str): a string that represents the IP prefix used to generate the IP addresses of the routers
+                ip_mask(str): a string that represents the IP mask used to generate the IP addresses of the routers
+        Returns:
+               get_intents(tuple): A tuple of six values 
+    ''' 
     try:
         f = open(file)
     except Exception:
@@ -119,7 +163,13 @@ def get_intents(file):
 
 def handle_output(AS_NUMBER):
     # handles the output directory 
-
+    '''
+    Returns a tuple of three values
+        Parameters: 
+                AS_NUMBER(int): an integer representing the number of an autonomous system
+        Returns:
+               handle_output(str): A string which is the output path to directory and its subdirectory for the respective configurations
+    ''' 
     json_output_name = f'complete_architecture_as_{AS_NUMBER}.json'
     parent_directory = '../output/'
     configs_parent_directory = '../output/configs/'
