@@ -7,6 +7,7 @@
     "routers": [
         {
             "router_number": 21,
+            "telnet_port": 5020,
             "eBGP": true,
             "eBGP_config": [
                 {
@@ -18,7 +19,7 @@
                     "remote_IP_address": "2005:100:1:100::13",
                     "local_preference": 80,
                     "community_in": "2005:30",
-                    "community_out": ["2005:20"]
+                    "community_out": ["2005:20, 2005:30"]
                 }
             ]
         }

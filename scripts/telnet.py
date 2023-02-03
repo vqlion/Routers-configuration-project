@@ -323,7 +323,7 @@ router_intent_list = AS_INTENTS["routers"]
 if target_router == None: print("Starting the configuration of the routers in AS", AS_NUMBER, "...")
 else: print("Starting the configuration of router", target_router, "...")
 
-archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_MASK)
+archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE)
 
 for routers in archi['architecture']:
     # declaration of constants relative to the router
@@ -335,8 +335,9 @@ for routers in archi['architecture']:
     router_intents = next(
         item for item in router_intent_list if item['router_number'] == router_number)
 
-    with telnetlib.Telnet(HOST, 5000 + router_number - 1) as tn:
-        # cleanip the terminal 
+    router_port = router_intents["telnet_port"]
+    with telnetlib.Telnet(HOST, router_port) as tn:
+        # clean up the terminal 
         tn.write(b'\r\n')
         tn.write(b'\r\n')
         tn.read_very_eager()

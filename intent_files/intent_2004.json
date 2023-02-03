@@ -6,13 +6,16 @@
     "IP_mask": 48,
     "routers": [
         {
-            "router_number": 20
+            "router_number": 20,
+            "telnet_port": 5019
         },
         {
-            "router_number": 19
+            "router_number": 19,
+            "telnet_port": 5018
         },
         {
             "router_number": 18,
+            "telnet_port": 5017,
             "eBGP": true,
             "eBGP_config": [
                 {

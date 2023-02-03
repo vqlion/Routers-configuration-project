@@ -6,13 +6,16 @@
     "IP_mask": 48,
     "routers": [
         {
-            "router_number": 17
+            "router_number": 17,
+            "telnet_port": 5016
         },
         {
-            "router_number": 16
+            "router_number": 16,
+            "telnet_port": 5015
         },
         {
             "router_number": 15,
+            "telnet_port": 5014,
             "eBGP": true,
             "eBGP_config": [
                 {
@@ -24,7 +27,7 @@
                     "remote_IP_address": "2001:100:1:100::3",
                     "local_preference": 80,
                     "community_in": "2001:30",
-                    "community_out": ["2001:20"]
+                    "community_out": ["2001:20, 2001:30"]
                 }
             ]
         }

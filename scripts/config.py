@@ -5,9 +5,6 @@ import sys
 
 
 def generate_header(hostname):
-    # returns the constant header at the beginning of the configuration files
-    # parameters:
-    # hostname: the router's name
     '''
     Returns the header by concatenating 2 string constants 
         Parameters: 
@@ -23,15 +20,21 @@ def generate_header(hostname):
 
 
 def generate_footer():
-    # returns the constant header at the end of the configuration files
     '''
     Returns the footer by concatenating multiple strings in one local variable
         Parameters(): 
                 -
         Returns:
-               generate_footer()[literal]: returns a string which is the footer of the network configuration
+               generate_footer([literal]): returns a string which is the footer of the network configuration
     '''
-    footer = 'control plane\n'
+    footer = '!\n'
+    footer += 'control plane\n'
+    footer += '!\n'
+    footer += 'ip forward-protocol nd\n'
+    footer += '!\n'
+    footer += '!\n'
+    footer += 'no ip http server\n'
+    footer += 'no ip http secure-server\n'
     footer += '!\n'
     footer += '!\n'
     footer += 'line con 0\n'
@@ -54,19 +57,14 @@ def generate_footer():
 
 
 def generate_interface_configuration(interface_name, ip_address, asbr=False):
-    # returns the configuration of the interface
-    # parameters:
-    # interface_name: the name of the interface
-    # ip_address: the ip address of the interface
-    # asbr: a boolean set to True if the router is an asbr
     '''
     Returns the configuration of each interface 
         Parameters:
                 interface_name(str): a string
                 ip_address(str)    : a string
-                absr(boolean)      : a boolean value if the router is an autonomous system border router (only for OSPF and RIP)
+                absr(boolean)      : a boolean flag if the router is an autonomous system border router (only for OSPF and RIP)
         Returns:
-                generate_interface_configuration(str): A String on multiple lines which is the configuration of each interface
+                generate_interface_configuration(str): A String on which is the configuration of each interface
     '''
     global AS_NUMBER
     global IGP
@@ -107,15 +105,12 @@ def generate_cost_configuration(router_intents):
     return cost_config
 
 def generate_loopback_configuration(loopback_address):
-    # returns the configuration of a loopback interface
-    # parameters:
-    # loopback_address: the loopback_address
     '''
-    Returns the loopback configuration for each AS 
+    Returns the loopback configuration 
         Parameters:
                 loopback_address(str): an unique string 
          Returns:
-                generate_loopback_configuration(str): A String on multiple lines which configures the loopback address for each AS
+                generate_loopback_configuration(str): A String on which configures the loopback address 
     '''
     global AS_NUMBER
     global IGP
@@ -134,17 +129,13 @@ def generate_loopback_configuration(loopback_address):
 
 
 def generate_iBGP_configuration(router_number, eBGP_asbr):
-    # returns the iBGP configuration of the router
-    # parameters:
-    # router_number: the id of the router
-    # eBGP: a boolean set to true if the router is an ASBR
     '''
     Returns the internal BGP configuration for each AS 
         Parameters:
                router_number(str): an unique string 
-               eBGP(boolean): a boolean value if the router is an autonomous system border router (R6, R7, R8, R9)
+               eBGP(boolean): a boolean value if the router is an autonomous system border router
          Returns:
-                generate_loopback_configuration(str): A String on multiple lines which configures the loopback address for each AS
+                generate_iBGP_configuration(str): A String which configures the iBGP configuration of the router
     '''
     global AS_NUMBER
 
@@ -182,20 +173,6 @@ def generate_iBGP_configuration(router_number, eBGP_asbr):
 
     iBGP_config += 'exit-address-family\n'
     iBGP_config += '!\n'
-    iBGP_config += 'ip forward-protocol nd\n'
-    iBGP_config += '!\n'
-    iBGP_config += '!\n'
-    iBGP_config += 'no ip http server\n'
-    iBGP_config += 'no ip http secure-server\n'
-    iBGP_config += '!\n'
-
-    if IGP == 'RIP':
-        iBGP_config += 'ipv6 router rip ripng\n'
-        iBGP_config += ' redistribute connected\n'
-
-    iBGP_config += '!\n'
-    iBGP_config += '!\n'
-    iBGP_config += '!\n'
 
     return iBGP_config
 
@@ -206,11 +183,8 @@ def generate_eBGP_configuration(router_intents):
         Parameters:
             router_intents(): a dictionary which contains the actual commands for eBGP configuration for a router 
         Returns:
-            generate_eBGP_configuration(str): A String on multiple lines which is the configuration of the external BGP for each router
+            generate_eBGP_configuration(str): A String which is the configuration of the external BGP for each router
     '''
-    # returns the eBGP configuration of a router's interface
-    # parameters:
-    # router_intents: a dictionnary containing the eBGP intents of the interface
     global AS_NUMBER
 
     eBGP_config = f'router bgp {AS_NUMBER}\n'
@@ -235,15 +209,12 @@ def generate_eBGP_configuration(router_intents):
 
 
 def generate_eBGP_interface(router_intents):
-    # returns the configuration of an eBGP interface
-    # parameters:
-    # router_intents: a dictionnary containing the eBGP intents of the interface
     '''
-      Returns the external BGP configuration of the interface 
+      Returns the eBGP interface's configuration
         Parameters:
             router_intents(): a dictionary which contains the actual commands for eBGP configuration for an interface
         Returns:
-            generate_eBGP_interface(str): A String on multiple lines which is the configuration of the external BGP for each interface 
+            generate_eBGP_interface(str): A String which is the configuration of the interface
     '''
     global AS_NUMBER
     global IGP
@@ -267,12 +238,12 @@ def generate_BGP_policies(router_intents):
         -  Local preference configuration
         -  Making the Communities
         -  Filtering the private IP addresses
-        -  AS prepanding
+        -  AS prepending
                                    
         Parameters:
             router_intents(): a dictionary  
         Returns:
-            generate_BGP_policies(str): A String on multiple lines which configures each BGP policy  
+            generate_BGP_policies(str): A String which configures each BGP policy  
     '''
     BGP_configuration = ''
     count = 0
@@ -336,7 +307,7 @@ AS_NUMBER, AS_INTENTS, ARCHITECTURE_PATH, IGP, IP_RANGE, IP_MASK = io_h.get_inte
 router_intent_list = AS_INTENTS["routers"]
 print("Generating the configuration of AS", AS_NUMBER, "...")
 
-archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_MASK)
+archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE)
 
 json_output_path, configs_parent_directory = io_h.handle_output(AS_NUMBER)
 
@@ -396,6 +367,11 @@ for routers in archi['architecture']:
             ospf_config = f'ipv6 router ospf {AS_NUMBER}\n'
             ospf_config += f' router-id {router_number}.{router_number}.{router_number}.{router_number}\n default-information originate always\n!\n'
             config_file.write(ospf_config)
+
+        if IGP == 'RIP':
+            rip_config = 'ipv6 router rip ripng\n'
+            rip_config += ' redistribute connected\n!\n'
+            config_file.write(rip_config)
 
         # writing footer
         config_file.write(generate_footer())

@@ -2,13 +2,7 @@ import json
 import sys
 import os
 
-#loads a json file with the architecture of the network
-#returns the total number of links between routers and the adjacency matrix of the network
-
 def get_minimun_router_number(arc):
-    # returns the minimum router id in the network
-    # parameters:
-    # arc: a dictionary representing the architecture of the network
     '''
     Returns the minimum router ID in the network  
         Parameters: 
@@ -24,13 +18,6 @@ def get_minimun_router_number(arc):
     return min
 
 def load(file_path):
-    # loads the json file with the architecture of the network
-    # parameters:
-    # file_path: the path of the json file
-    # returns:
-    # link_count: the number of links in the network
-    # adjacency_matrix: the adjacency matrix of the network
-    # arc: a modified dictionnary representing the opened json file
     '''
     Returns a tuple of three values
         Parameters: 
@@ -72,14 +59,9 @@ def load(file_path):
     return int(link_count) , adjacency_matrix, arc
 
 
-def generate_ip_address(json_file, ip_range, ip_mask):
-    # generates the ip addresses of the interfaces of a network
-    # parameters:
-    # json_file: the path of the json file containing the architecture of the network
-    # ip_range: the ip range used to generate the ip addresses
-    # ip_mask: the ip max used to generate the ip addresses
+def generate_ip_address(json_file, ip_range):
     '''
-    Returns a tuple of three values
+    Returns a modified version of the architecture dictionary
         Parameters: 
                 json_file(str): a string which contains the path of a JSON file
                 ip_range(str): a string representing the range of IP addresses used to generate IP addresses for the network interfaces
@@ -90,10 +72,7 @@ def generate_ip_address(json_file, ip_range, ip_mask):
     count, matrix, arc = load(json_file)
 
     ip_list = []
-
     ip_range_input = ip_range
-    ip_mask_input = ip_mask
-
     ip_range_input = ip_range_input[:-1]
 
     #loops over the links and creates a new ip for each link, stores in a list
@@ -120,17 +99,9 @@ def generate_ip_address(json_file, ip_range, ip_mask):
                     ip = symetric_link['link_IP'] #get the IP of the link
                     neighbors.update({"link_IP": ip}) #set the IP on this router
 
-    return arc #returns the modified dict with the subnetworks' ip range information
+    return arc 
 
 def get_intents(file):
-    # gets the intent of an AS based on the intent file in parameters
-    # returns:
-    # as_number: the AS number of the network
-    # intents: a dictionnary representing the intent file
-    # architecture_path: the path json file containing the architecture of the network
-    # igp: the IGP used
-    # ip_range: the ip range used to generate the ip addresses of the routers
-    # ip_mask: the ip mask used to generate the ip addresses of the routers
     '''
     Returns a tuple of six values
         Parameters: 
@@ -162,13 +133,12 @@ def get_intents(file):
 
 
 def handle_output(AS_NUMBER):
-    # handles the output directory 
     '''
-    Returns a tuple of three values
+    Returns a tuple of two values
         Parameters: 
                 AS_NUMBER(int): an integer representing the number of an autonomous system
         Returns:
-               handle_output(str): A string which is the output path to directory and its subdirectory for the respective configurations
+               handle_output(tuple): A tuple of strings which are the output path to directory and its subdirectory for the respective configurations
     ''' 
     json_output_name = f'complete_architecture_as_{AS_NUMBER}.json'
     parent_directory = '../output/'
@@ -185,5 +155,5 @@ def handle_output(AS_NUMBER):
     except FileExistsError:
         pass
     # creates the required directories to store the output if they are yet to be created
-    return json_output_path, configs_parent_directory #returns the output paths
+    return json_output_path, configs_parent_directory 
     
