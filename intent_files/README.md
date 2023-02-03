@@ -31,6 +31,7 @@ Here is an example of what a router in the ```routers``` list must look like. No
 ```json
 {
     "router_number": 9,
+    "telnet_port": 5008,
     "cost_parameters": [
         {
             "cost":100,
@@ -56,6 +57,7 @@ Here is an example of what a router in the ```routers``` list must look like. No
 ```
 
  - ```router_number``` is the id of the router. It is arbitrary, but all routers must have different positive ids, and the id of a router must be consistent between the intent file and the architecture file
+ - ```telnet_port``` is the port on which the telnet connection must occur. It is optional, but the telnet configuration won't work if it's not given
  - ```cost_parameters``` is a list of the costs intents for OSPF optimization. It is optional
     - ```cost``` is the desired cost
     - ```interface``` is the name of the interface that will see its cost modified
@@ -114,3 +116,30 @@ The json file contains a simple list: ```architecture```, containing the archite
  - ```neighbors``` is a list of all the interfaces of the routers that are connected to a neighbor in the same AS. eBGP neighbors aren't described in this list thought, as they are already described in the intent file
     - ```interface``` is the name of the interface on which the neighbor is connected
     - ```neighbor_number``` is the id of the neighbor
+
+## Drag and drop file
+
+The drag and drop file is a json file used to move the configuration files automatically in the right directories. It must describe, for each router, the path of the new configuration file and the path it should be copied in.
+
+Here is an example of what this file must look like:
+
+```json
+{
+    "architecture": [
+        {
+            "router_number": 1,
+            "removed_file": "../../../../GNS3/projects/projet_GNS3/project-files/dynamips/b51ccf5e-4fd6-4412-931b-73faa1445566/configs/i1_startup-config.cfg",               
+            "source_file": "../output/configs/i1_startup-config.cfg"
+        },
+        {
+            "router_number": 2,
+            "removed_file": "../../../../GNS3/projects/projet_GNS3/project-files/dynamips/e58c5662-6d45-4798-aeb3-011db479c2f0/configs/i2_startup-config.cfg",              
+            "source_file": "../output/configs/i2_startup-config.cfg"
+        }
+    ]
+}
+```
+
+ - ```router_number``` is the id of the router. It must be consistent with the other intent files.
+ - ```removed_file``` is the path of the router's configuration file in the GNS3 files.
+ - ```source_file``` is the path of the newly generated router's configuration
