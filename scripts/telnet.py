@@ -129,6 +129,14 @@ def generate_OSPF_configuration(router_number, tn):
     tn.write(b'end\r\n')
     tn.read_very_eager()
 
+def generate_RIP_configuration(tn):
+    tn.write(b'end\r\n')
+    tn.write(b'end\r\n')
+    tn.write(b'conf t\r\n')
+    tn.write(b'ipv6 router rip ripng\r\n')
+    tn.write(b'redistribute connected\r\n')
+    tn.write(b'end\r\n')
+
 def generate_eBGP_configuration(router_intents, tn):
     '''
       Returns the external BGP configuration 
@@ -292,14 +300,6 @@ def generate_iBGP_configuration(router_number, eBGP_asbr, tn):
 
     tn.write(b'end\r\n')
     tn.read_very_eager()
-
-    if IGP == 'RIP':
-        tn.write(b'conf t\r\n')
-        tn.write(b'ipv6 router rip ripng\r\n')
-        tn.write(b'redistribute connected\r\n')
-        tn.write(b'end\r\n')
-
-    tn.read_very_eager()
     
 
 if len(sys.argv) < 2:
@@ -374,6 +374,9 @@ for routers in archi['architecture']:
 
         if IGP == "OSPF":
             generate_OSPF_configuration(router_number, tn)
+        
+        if IGP == 'RIP':
+            generate_RIP_configuration(tn)
 
     print("Router", router_name, "done!")
 
