@@ -56,7 +56,7 @@ def generate_footer():
     return footer
 
 
-def generate_interface_configuration(interface_name, ip_address, ip_v=0):
+def generate_interface_configuration(interface_name,ip_address,vpn=False, ip_v=0):
     '''
     Returns the configuration of each interface 
         Parameters:
@@ -68,21 +68,25 @@ def generate_interface_configuration(interface_name, ip_address, ip_v=0):
     '''
     global AS_NUMBER
     global IGP
-
+    global vrf_number
+    
     asbr = True
     version = f'v{ip_v}' if ip_v == 6 else ""
-
+    
     if ip_v == 0: 
         ip_v = IP_VERSION
         version = v6
         asbr = False
 
     interface_config = f'interface {interface_name}\n'
+    if vpn:
+        interface_config +=f"ip vrf forwarding {vrf_number}\n" 
     interface_config += ' no ip address\n'
     # verbose constants depending on the interface type
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n'
 
     interface_config += f' ip{version} address {ip_address}\n'
+    
     if ip_v == 6:
         interface_config += ' ipv6 enable\n'
 
@@ -94,7 +98,8 @@ def generate_interface_configuration(interface_name, ip_address, ip_v=0):
             interface_config += f' ip{version} ospf {AS_NUMBER} area 0\n' 
         else : ''
     interface_config += '!\n'
-
+    
+    
     return interface_config
 
 def generate_cost_configuration(router_intents):
@@ -237,7 +242,8 @@ def generate_eBGP_interface(router_intents):
     '''
     global AS_NUMBER
     global IGP
-
+    global vrf_number
+    
     interface_config = ''
     for ebgp_interfaces in router_intents["eBGP_config"]:
         interface = ebgp_interfaces["interface"]
@@ -245,8 +251,12 @@ def generate_eBGP_interface(router_intents):
         ip_mask = ebgp_interfaces["link_mask"]
         ip_v = ebgp_interfaces["IP_version"]
         ip_address += f'/{ip_mask}'
-        interface_config += generate_interface_configuration(
-            interface, ip_address, ip_v)
+        vpn = ebgp_interfaces["vpn"]
+        if vpn:
+            interface_config += generate_interface_configuration(interface, ip_address,True, ip_v)
+            vrf_number += 1
+        else:
+            interface_config += generate_interface_configuration(interface, ip_address,False, ip_v)
 
     return interface_config
 
@@ -330,6 +340,7 @@ print("Generating the configuration of AS", AS_NUMBER, "...")
 
 v6 = "v6" if IP_VERSION == 6 else ""
 v4 = "v4" if IP_VERSION == 4 else ""
+vrf_number = 1
 
 archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_VERSION, IP_MASK)
 
