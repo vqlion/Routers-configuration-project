@@ -1,0 +1,48 @@
+{
+    "architecture": [
+        {
+            "router_number": 1,
+            "neighbors": [
+                {
+                    "interface": "f0/0",
+                    "neighbor_number": 2
+                }
+            ]
+        },
+        {
+            "router_number": 2,
+            "neighbors": [
+                {
+                    "interface": "f0/0",
+                    "neighbor_number": 1
+                },
+                {
+                    "interface": "gi1/0",
+                    "neighbor_number": 3
+                }
+            ]
+        },
+        {
+            "router_number": 3,
+            "neighbors": [
+                {
+                    "interface": "gi1/0",
+                    "neighbor_number": 2
+                },
+                {
+                    "interface": "f0/0",
+                    "neighbor_number": 4
+                }
+            ]
+        },
+        {
+            "router_number": 4,
+            "neighbors": [
+                {
+                    "interface": "f0/0",
+                    "neighbor_number": 3
+                }
+            ]
+        }
+    ]
+}
