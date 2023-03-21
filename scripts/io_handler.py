@@ -59,7 +59,7 @@ def load(file_path):
     return int(link_count) , adjacency_matrix, arc
 
 
-def generate_ip_address(json_file, ip_range, ip_version):
+def generate_ip_address(json_file, ip_range, ip_version, ip_mask):
     '''
     Returns a modified version of the architecture dictionary
         Parameters: 
@@ -76,13 +76,22 @@ def generate_ip_address(json_file, ip_range, ip_version):
     ip_range_input = ip_range_input[:-1]
 
     #loops over the links and creates a new ip for each link, stores in a list
+    subnet = 1
+    current_subnet = 1
     for i in range(1, link_count + 1):
         r = ''
         if ip_version == 6:
             r += f'{i:X}'
         elif ip_version == 4:
-            r += f'.{i}'
+            if (current_subnet == 255):
+                subnet += 1
+                current_subnet = 1
+            iteration = (int) ((32 - ip_mask) / 8) - 1
+            for _ in range(0,iteration-1):
+                r += f'.{subnet}'
+            r += f'.{current_subnet}'
         ip_list.append(f'{ip_range_input}{r}')
+        current_subnet += 1
 
     #affects an ip to each link and stores it in the dict from the architecture json file
     for routers in arc['architecture']:

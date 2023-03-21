@@ -155,43 +155,44 @@ def generate_iBGP_configuration(router_number, eBGP_asbr):
                 generate_iBGP_configuration(str): A String which configures the iBGP configuration of the router
     '''
     global AS_NUMBER
+    iBGP_config = ''
+    if eBGP_asbr:
+        iBGP_config = f'router bgp {AS_NUMBER}\n'
+        iBGP_config += f' bgp router-id {router_number}.{router_number}.{router_number}.{router_number}\n'
+        iBGP_config += ' bgp log-neighbor-changes\n'
+        iBGP_config += ' no bgp default ipv4-unicast\n' if IP_VERSION == 6 else ""
+        for routers in archi['architecture']:
+            neighbor_number = routers['abstract_router_number']
+            neighbor_loopback = routers['loopback_IP']
+            if router_number != neighbor_number:
+                iBGP_config += f' neighbor {neighbor_loopback} remote-as {AS_NUMBER}\n'
+                iBGP_config += f' neighbor {neighbor_loopback} update-source Loopback0\n'
 
-    iBGP_config = f'router bgp {AS_NUMBER}\n'
-    iBGP_config += f' bgp router-id {router_number}.{router_number}.{router_number}.{router_number}\n'
-    iBGP_config += ' bgp log-neighbor-changes\n'
-    iBGP_config += ' no bgp default ipv4-unicast\n'
-    for routers in archi['architecture']:
-        neighbor_number = routers['abstract_router_number']
-        neighbor_loopback = routers['loopback_IP']
-        if router_number != neighbor_number:
-            iBGP_config += f' neighbor {neighbor_loopback} remote-as {AS_NUMBER}\n'
-            iBGP_config += f' neighbor {neighbor_loopback} update-source Loopback0\n'
-
-    iBGP_config += '!\n'
-    iBGP_config += f'address-family ipv4\n'
-
-    if v6:
         iBGP_config += '!\n'
-        iBGP_config += f'address-family ipv6\n'
+        iBGP_config += f'address-family ipv4\n'
 
-    for routers in archi['architecture']:
-        neighbor_number = routers['abstract_router_number']
-        neighbor_loopback = routers['loopback_IP']
-        if router_number != neighbor_number:
-            iBGP_config += f' neighbor {neighbor_loopback} activate\n'
-            iBGP_config += f' neighbor {neighbor_loopback} send-community\n'
+        if v6:
+            iBGP_config += '!\n'
+            iBGP_config += f'address-family ipv6\n'
 
-    announced_networks = []
-    for routers in archi['architecture']:
-        if eBGP_asbr == False:
-            for neighbors in routers["neighbors"]:
-                neighbor_network = neighbors['link_IP']
-                if not neighbor_network in announced_networks:
-                    iBGP_config += f' network {neighbor_network}::/{IP_MASK + 16}\n'
-                    announced_networks.append(neighbor_network)
+        for routers in archi['architecture']:
+            neighbor_number = routers['abstract_router_number']
+            neighbor_loopback = routers['loopback_IP']
+            if router_number != neighbor_number:
+                iBGP_config += f' neighbor {neighbor_loopback} activate\n'
+                iBGP_config += f' neighbor {neighbor_loopback} send-community\n'
 
-    iBGP_config += 'exit-address-family\n'
-    iBGP_config += '!\n'
+        announced_networks = []
+        for routers in archi['architecture']:
+            if eBGP_asbr == False:
+                for neighbors in routers["neighbors"]:
+                    neighbor_network = neighbors['link_IP']
+                    if not neighbor_network in announced_networks:
+                        iBGP_config += f' network {neighbor_network}::/{IP_MASK + 16}\n'
+                        announced_networks.append(neighbor_network)
+
+        iBGP_config += 'exit-address-family\n'
+        iBGP_config += '!\n'
 
     return iBGP_config
 
@@ -270,6 +271,7 @@ def generate_BGP_policies(router_intents):
         community_in = eBGP_neighbor["community_in"]
         neighbor_IP_address = eBGP_neighbor["remote_IP_address"]
         neighbor_IP_version = eBGP_neighbor["IP_version"]
+        version = "v6" if neighbor_IP_address == 6 else "v4"
         communities_out = []
         for community in eBGP_neighbor["community_out"]:
             communities_out.append(community)
@@ -295,7 +297,7 @@ def generate_BGP_policies(router_intents):
         BGP_configuration += f'route-map map_out_{count} permit 100\n!\n'
 
         BGP_configuration += f'router bgp {AS_NUMBER}\n'
-        BGP_configuration += 'address-family ipv6\n'
+        BGP_configuration += f'address-family ip{version}\n'
         BGP_configuration += f' neighbor {neighbor_IP_address} route-map map_in_{count} in\n'
         BGP_configuration += f' neighbor {neighbor_IP_address} route-map map_out_{count} out\n' 
         BGP_configuration += 'exit-address-family\n!\n'
@@ -327,9 +329,9 @@ router_intent_list = AS_INTENTS["routers"]
 print("Generating the configuration of AS", AS_NUMBER, "...")
 
 v6 = "v6" if IP_VERSION == 6 else ""
-v4 = "v6" if IP_VERSION == 6 else ""
+v4 = "v4" if IP_VERSION == 4 else ""
 
-archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_VERSION)
+archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_VERSION, IP_MASK)
 
 json_output_path, configs_parent_directory = io_h.handle_output(AS_NUMBER)
 
