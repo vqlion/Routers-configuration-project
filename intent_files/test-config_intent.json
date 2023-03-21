@@ -22,7 +22,8 @@
                     "local_preference": 200,
                     "community_in": "2003:20",
                     "community_out": ["2003:30", "2003:20"],
-                    "vpn": true
+                    "vpn": true,
+                    "client_id": 1
                 },
                 {
                     "interface": "g1/0",
@@ -31,11 +32,12 @@
                     "link_mask":64,
                     "IP_version": 6,
                     "IP_address": "2000:100:1:1::8",
-                    "remote_IP_address": "2000:100:1:1::6",
+                    "remote_IP_address": "2000:100:1:1::7",
                     "local_preference": 200,
                     "community_in": "2003:20",
                     "community_out": ["2003:30", "2003:20"],
-                    "vpn": true
+                    "vpn": true,
+                    "client_id": 2
                 }
             ]
         },
