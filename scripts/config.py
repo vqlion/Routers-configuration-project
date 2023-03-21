@@ -56,7 +56,7 @@ def generate_footer():
     return footer
 
 
-def generate_interface_configuration(interface_name, ip_address, asbr=False):
+def generate_interface_configuration(interface_name, ip_address, ip_v=0):
     '''
     Returns the configuration of each interface 
         Parameters:
@@ -69,21 +69,29 @@ def generate_interface_configuration(interface_name, ip_address, asbr=False):
     global AS_NUMBER
     global IGP
 
+    asbr = True
+    version = f'v{ip_v}' if ip_v == 6 else ""
+
+    if ip_v == 0: 
+        ip_v = IP_VERSION
+        version = v6
+        asbr = False
+
     interface_config = f'interface {interface_name}\n'
     interface_config += ' no ip address\n'
     # verbose constants depending on the interface type
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n'
 
-    interface_config += f' ip{v6} address {ip_address}\n'
-    if IP_VERSION == 6:
+    interface_config += f' ip{version} address {ip_address}\n'
+    if ip_v == 6:
         interface_config += ' ipv6 enable\n'
-    elif IP_VERSION == 4:
-        interface_config += ' mpls ip\n'
 
     if not asbr:
-        interface_config += ' ip{v6} rip ripng enable\n' if not asbr and IGP == 'RIP' else ''
+        if ip_v == 4:
+            interface_config += ' mpls ip\n'
+        interface_config += f' ip{version} rip ripng enable\n' if not asbr and IGP == 'RIP' else ''
         if IGP == 'OSPF':
-            interface_config += f' ip{v6} ospf {AS_NUMBER} area 0\n' 
+            interface_config += f' ip{version} ospf {AS_NUMBER} area 0\n' 
         else : ''
     interface_config += '!\n'
 
@@ -106,7 +114,7 @@ def generate_cost_configuration(router_intents):
             cost=cost_configuration["cost"]
             interface=cost_configuration["interface"]
             cost_config += f'interface {interface}\n'
-            cost_config += f'ipv6 ospf cost {cost}\n!\n'
+            cost_config += f'ip{v6} ospf cost {cost}\n!\n'
     return cost_config
 
 def generate_loopback_configuration(loopback_address):
@@ -160,9 +168,11 @@ def generate_iBGP_configuration(router_number, eBGP_asbr):
             iBGP_config += f' neighbor {neighbor_loopback} update-source Loopback0\n'
 
     iBGP_config += '!\n'
-    iBGP_config += 'address-family ipv4\n'
-    iBGP_config += '!\n'
-    iBGP_config += 'address-family ipv6\n'
+    iBGP_config += f'address-family ipv4\n'
+
+    if v6:
+        iBGP_config += '!\n'
+        iBGP_config += f'address-family ipv6\n'
 
     for routers in archi['architecture']:
         neighbor_number = routers['abstract_router_number']
@@ -200,11 +210,10 @@ def generate_eBGP_configuration(router_intents):
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
         remote_as = ebgp_neighbors["remote_AS"]
+        ip_v = "v6" if ebgp_neighbors["IP_version"] == 6 else "v4"
         eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
-    eBGP_config += '!\n'
-    eBGP_config += 'address-family ipv6\n'
-
-    for ebgp_neighbors in router_intents["eBGP_config"]:
+        eBGP_config += '!\n'
+        eBGP_config += f'address-family ip{ip_v}\n'
         remote_address = ebgp_neighbors["remote_IP_address"]
         link_IP = ebgp_neighbors["link_IP"]
         eBGP_config += f' neighbor {remote_address} activate\n'
@@ -212,7 +221,7 @@ def generate_eBGP_configuration(router_intents):
 
     eBGP_config += f' network {IP_RANGE}/{IP_MASK}\n'
     eBGP_config += 'exit-address-family\n!\n'
-    eBGP_config += f'ipv6 route {IP_RANGE}/{IP_MASK} Null0\n!\n'
+    eBGP_config += f'ip{v6} route {IP_RANGE}/{IP_MASK} Null0\n!\n'
 
     return eBGP_config
 
@@ -228,15 +237,15 @@ def generate_eBGP_interface(router_intents):
     global AS_NUMBER
     global IGP
 
-    ASBR = True
     interface_config = ''
     for ebgp_interfaces in router_intents["eBGP_config"]:
         interface = ebgp_interfaces["interface"]
         ip_address = ebgp_interfaces["IP_address"]
         ip_mask = ebgp_interfaces["link_mask"]
+        ip_v = ebgp_interfaces["IP_version"]
         ip_address += f'/{ip_mask}'
         interface_config += generate_interface_configuration(
-            interface, ip_address, ASBR)
+            interface, ip_address, ip_v)
 
     return interface_config
 
@@ -260,6 +269,7 @@ def generate_BGP_policies(router_intents):
         local_preference = eBGP_neighbor["local_preference"]
         community_in = eBGP_neighbor["community_in"]
         neighbor_IP_address = eBGP_neighbor["remote_IP_address"]
+        neighbor_IP_version = eBGP_neighbor["IP_version"]
         communities_out = []
         for community in eBGP_neighbor["community_out"]:
             communities_out.append(community)
@@ -317,6 +327,7 @@ router_intent_list = AS_INTENTS["routers"]
 print("Generating the configuration of AS", AS_NUMBER, "...")
 
 v6 = "v6" if IP_VERSION == 6 else ""
+v4 = "v6" if IP_VERSION == 6 else ""
 
 archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_VERSION)
 
@@ -359,7 +370,7 @@ for routers in archi['architecture']:
                     add = 2
                 else:
                     link_ip_list.append(link_ip)
-                    
+
                 ip_address = f'{link_ip}.{add} 255.255.255.252'
                 
             neighbors.update({"ip_address": ip_address})
