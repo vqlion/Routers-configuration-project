@@ -105,6 +105,8 @@ def generate_interface_configuration(interface_name, ip_address, vpn_client=0, i
         interface_config += f' route-target export {remote_as}:{vpn_client}\n'
         interface_config += f' route-target import {remote_as}:{vpn_client}\n'
         interface_config += '!\n'
+        vrfs_list.append(vpn_client)
+        print(vrfs_list)
         vrf_number += 1
     
     return interface_config
@@ -238,9 +240,14 @@ def generate_eBGP_configuration(router_intents):
         eBGP_config += f' network {link_IP}\n'
         eBGP_config += f' network {IP_RANGE}/{IP_MASK}\n'
         if vpn_client:
-            eBGP_config += f"!\naddress-family vpn{ip_v}\n"
+            client_id = ebgp_neighbors["client_id"]
+            eBGP_config += f"!\naddress-family vpn{ip_v}\n" 
             eBGP_config += f' neighbor {remote_address} activate\n'
             eBGP_config += f' neighbor {remote_address} send-community extended\n'
+            eBGP_config += f"!\naddress-family ip{ip_v} vrf {vrfs_list.index(client_id)+1}\n" 
+            print(f'{vrfs_list}, {client_id}')
+            eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
+            eBGP_config += f' neighbor {remote_address} activate\n!\n'
 
     eBGP_config += 'exit-address-family\n!\n'
     eBGP_config += f'ip{v6} route {IP_RANGE}/{IP_MASK} Null0\n!\n'
@@ -363,6 +370,7 @@ archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_VERSION, IP_MAS
 json_output_path, configs_parent_directory = io_h.handle_output(AS_NUMBER)
 
 link_ip_list = []
+vrfs_list = []
 
 # construction of the configuration files
 for routers in archi['architecture']:
