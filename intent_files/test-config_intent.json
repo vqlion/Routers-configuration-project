@@ -21,7 +21,21 @@
                     "remote_IP_address": "2000:100:1:1::6",
                     "local_preference": 200,
                     "community_in": "2003:20",
-                    "community_out": ["2003:30", "2003:20"]
+                    "community_out": ["2003:30", "2003:20"],
+                    "vpn": true
+                },
+                {
+                    "interface": "g1/0",
+                    "remote_AS": 2002,
+                    "link_IP":"2000:100:1:1::/64",
+                    "link_mask":64,
+                    "IP_version": 6,
+                    "IP_address": "2000:100:1:1::8",
+                    "remote_IP_address": "2000:100:1:1::6",
+                    "local_preference": 200,
+                    "community_in": "2003:20",
+                    "community_out": ["2003:30", "2003:20"],
+                    "vpn": true
                 }
             ]
         },
