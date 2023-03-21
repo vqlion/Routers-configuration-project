@@ -59,7 +59,7 @@ def load(file_path):
     return int(link_count) , adjacency_matrix, arc
 
 
-def generate_ip_address(json_file, ip_range):
+def generate_ip_address(json_file, ip_range, ip_version):
     '''
     Returns a modified version of the architecture dictionary
         Parameters: 
@@ -69,25 +69,35 @@ def generate_ip_address(json_file, ip_range):
         Returns:
                generate_ip_address(dict): A dictionary updated with with the subnetworks' IP range information 
     ''' 
-    count, matrix, arc = load(json_file)
+    link_count, matrix, arc = load(json_file)
 
     ip_list = []
     ip_range_input = ip_range
     ip_range_input = ip_range_input[:-1]
 
     #loops over the links and creates a new ip for each link, stores in a list
-    for i in range(1, count + 1):
-        r=f'{i:X}'
+    for i in range(1, link_count + 1):
+        r = ''
+        if ip_version == 6:
+            r += f'{i:X}'
+        elif ip_version == 4:
+            r += f'.{i}'
         ip_list.append(f'{ip_range_input}{r}')
 
     #affects an ip to each link and stores it in the dict from the architecture json file
     for routers in arc['architecture']:
         router_number = routers['router_number']
-        abstract_route_number = routers['abstract_router_number']
-        routers.update({"loopback_IP": f"{abstract_route_number}::{abstract_route_number}"}) #generate loopback IP of the router
+        abstract_router_number = routers['abstract_router_number']
+
+        loopback_address = ""
+        if ip_version == 6:
+            loopback_address = f"{abstract_router_number}::{abstract_router_number}"
+        elif ip_version == 4:
+            loopback_address = f"192.168.{abstract_router_number}.{abstract_router_number}"
+        routers.update({"loopback_IP": f"{loopback_address}"}) #generate loopback IP of the router
+
         for neighbors in routers['neighbors']:
             neighbor_number = neighbors['neighbor_number']
-
             if not "link_IP" in neighbors: #if the link's ip is not set yet
                 if matrix[routers['router_number'] - 1][neighbors['neighbor_number'] - 1]: #check if it has been set before on another router
                     neighbors.update({"link_IP": ip_list.pop()}) #set it from the list if it hasn't
@@ -126,10 +136,11 @@ def get_intents(file):
     architecture_path = intents['architecture_path']
     igp = intents['IGP']
     ip_range = intents['IP_prefix']
+    ip_version = intents['IP_version']
     # gets the ip range and mask to create the network ips of the links' subnetworks
     ip_mask = intents['IP_mask']
 
-    return as_number, intents, architecture_path, igp, ip_range, ip_mask
+    return as_number, intents, architecture_path, igp, ip_range, ip_mask, ip_version
 
 
 def handle_output(AS_NUMBER):

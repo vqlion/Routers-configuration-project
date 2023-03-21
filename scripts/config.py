@@ -16,7 +16,7 @@ def generate_header(hostname):
     CONSTANT_VERBOSE_1 = f'version 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname {hostname}'
     CONSTANT_VERBOSE_2 = '\n!\nboot-start-marker\nboot-end-marker\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\nmultilink bundle-name authenticated\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n'
 
-    return CONSTANT_VERBOSE_1 + CONSTANT_VERBOSE_2
+    return CONSTANT_VERBOSE_1 + CONSTANT_VERBOSE_2 + (('mpls label protocol ldp\n!\n') if IP_VERSION == 4 else "")
 
 
 def generate_footer():
@@ -73,12 +73,17 @@ def generate_interface_configuration(interface_name, ip_address, asbr=False):
     interface_config += ' no ip address\n'
     # verbose constants depending on the interface type
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n'
-    interface_config += f' ipv6 address {ip_address}\n'
-    interface_config += ' ipv6 enable\n'
+
+    interface_config += f' ip{v6} address {ip_address}\n'
+    if IP_VERSION == 6:
+        interface_config += ' ipv6 enable\n'
+    elif IP_VERSION == 4:
+        interface_config += ' mpls ip\n'
+
     if not asbr:
-        interface_config += ' ipv6 rip ripng enable\n' if not asbr and IGP == 'RIP' else ''
+        interface_config += ' ip{v6} rip ripng enable\n' if not asbr and IGP == 'RIP' else ''
         if IGP == 'OSPF':
-            interface_config += f' ipv6 ospf {AS_NUMBER} area 0\n' 
+            interface_config += f' ip{v6} ospf {AS_NUMBER} area 0\n' 
         else : ''
     interface_config += '!\n'
 
@@ -117,12 +122,16 @@ def generate_loopback_configuration(loopback_address):
     global IP_MASK
 
     loopback_config = 'interface Loopback0\n no ip address\n'
-    loopback_config += f' ipv6 address {loopback_address}/{IP_MASK+16}\n'
-    loopback_config += ' ipv6 enable\n'
+
+    if IP_VERSION == 6:
+        loopback_config += f' ipv6 address {loopback_address}/{IP_MASK+16}\n'
+        loopback_config += ' ipv6 enable\n'
+    elif IP_VERSION == 4:
+        loopback_config += f' ip address {loopback_address} 255.255.255.255\n'
     # extra config if RIP router
-    loopback_config += ' ipv6 rip ripng enable\n' if IGP == 'RIP' else ''
+    loopback_config += f' ip{v6} rip ripng enable\n' if IGP == 'RIP' else ''
     # extra config if OSPF router
-    loopback_config += f' ipv6 ospf {AS_NUMBER} area 0\n' if IGP == 'OSPF' else ''
+    loopback_config += f' ip{v6} ospf {AS_NUMBER} area 0\n' if IGP == 'OSPF' else ''
     loopback_config += '!\n'
 
     return loopback_config
@@ -302,15 +311,18 @@ if len(sys.argv) != 2:
 intent_path = sys.argv[1]
 
 
-AS_NUMBER, AS_INTENTS, ARCHITECTURE_PATH, IGP, IP_RANGE, IP_MASK = io_h.get_intents(
+AS_NUMBER, AS_INTENTS, ARCHITECTURE_PATH, IGP, IP_RANGE, IP_MASK, IP_VERSION = io_h.get_intents(
     intent_path)
 router_intent_list = AS_INTENTS["routers"]
 print("Generating the configuration of AS", AS_NUMBER, "...")
 
-archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE)
+v6 = "v6" if IP_VERSION == 6 else ""
+
+archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_VERSION)
 
 json_output_path, configs_parent_directory = io_h.handle_output(AS_NUMBER)
 
+link_ip_list = []
 
 # construction of the configuration files
 for routers in archi['architecture']:
@@ -324,6 +336,8 @@ for routers in archi['architecture']:
 
     # opening the file the script is going to write the configuration into
     with open(output_path, 'w') as config_file:
+
+
         # Writing header
         config_file.write(generate_header(router_name))
 
@@ -336,7 +350,18 @@ for routers in archi['architecture']:
             # Writing the configuration of the non-ebgp interfaces
             interface_name = neighbors['interface']
             link_ip = neighbors['link_IP']
-            ip_address = f'{link_ip}::{router_number}/{IP_MASK+16}'
+            ip_address = ''
+            if IP_VERSION == 6:
+                ip_address = f'{link_ip}::{router_number}/{IP_MASK+16}'
+            elif IP_VERSION == 4:
+                add = 1
+                if link_ip in link_ip_list:
+                    add = 2
+                else:
+                    link_ip_list.append(link_ip)
+                    
+                ip_address = f'{link_ip}.{add} 255.255.255.252'
+                
             neighbors.update({"ip_address": ip_address})
             config_file.write(generate_interface_configuration(
                 interface_name, ip_address))
@@ -364,8 +389,13 @@ for routers in archi['architecture']:
 
         # extra config if OSPF router
         if IGP == "OSPF":
-            ospf_config = f'ipv6 router ospf {AS_NUMBER}\n'
-            ospf_config += f' router-id {router_number}.{router_number}.{router_number}.{router_number}\n default-information originate always\n!\n'
+            ospf_config = f'ipv6 ' if IP_VERSION == 6 else ''
+            ospf_config += f'router ospf {AS_NUMBER}\n'
+            if IP_VERSION == 6:
+                ospf_config += f' router-id {router_number}.{router_number}.{router_number}.{router_number}\n'
+            elif IP_VERSION == 4:
+                ospf_config += f' router-id {loopback_address}\n'
+            ospf_config += ' default-information originate always\n!\n'
             config_file.write(ospf_config)
 
         if IGP == 'RIP':
