@@ -56,7 +56,7 @@ def generate_footer():
     return footer
 
 
-def generate_interface_configuration(interface_name,ip_address,vpn=False, ip_v=0):
+def generate_interface_configuration(interface_name, ip_address, vpn_client=0, ip_v=0, remote_as=0):
     '''
     Returns the configuration of each interface 
         Parameters:
@@ -79,8 +79,8 @@ def generate_interface_configuration(interface_name,ip_address,vpn=False, ip_v=0
         asbr = False
 
     interface_config = f'interface {interface_name}\n'
-    if vpn:
-        interface_config +=f"ip vrf forwarding {vrf_number}\n" 
+    if vpn_client:
+        interface_config +=f" ip vrf forwarding {vrf_number}\n" 
     interface_config += ' no ip address\n'
     # verbose constants depending on the interface type
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n'
@@ -98,7 +98,14 @@ def generate_interface_configuration(interface_name,ip_address,vpn=False, ip_v=0
             interface_config += f' ip{version} ospf {AS_NUMBER} area 0\n' 
         else : ''
     interface_config += '!\n'
-    
+
+    if vpn_client:
+        interface_config += f'ip vrf {vrf_number}\n' 
+        interface_config += f' rd {remote_as}:{vpn_client}\n'
+        interface_config += f' route-target export {remote_as}:{vpn_client}\n'
+        interface_config += f' route-target import {remote_as}:{vpn_client}\n'
+        interface_config += '!\n'
+        vrf_number += 1
     
     return interface_config
 
@@ -216,16 +223,25 @@ def generate_eBGP_configuration(router_intents):
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
         remote_as = ebgp_neighbors["remote_AS"]
-        ip_v = "v6" if ebgp_neighbors["IP_version"] == 6 else "v4"
         eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
+
+    for ebgp_neighbors in router_intents["eBGP_config"]:
+        remote_address = ebgp_neighbors["remote_IP_address"]
+        remote_as = ebgp_neighbors["remote_AS"]
+        ip_v = "v6" if ebgp_neighbors["IP_version"] == 6 else "v4"
+        vpn_client = ebgp_neighbors["vpn"]
         eBGP_config += '!\n'
         eBGP_config += f'address-family ip{ip_v}\n'
         remote_address = ebgp_neighbors["remote_IP_address"]
         link_IP = ebgp_neighbors["link_IP"]
         eBGP_config += f' neighbor {remote_address} activate\n'
         eBGP_config += f' network {link_IP}\n'
+        eBGP_config += f' network {IP_RANGE}/{IP_MASK}\n'
+        if vpn_client:
+            eBGP_config += f"!\naddress-family vpn{ip_v}\n"
+            eBGP_config += f' neighbor {remote_address} activate\n'
+            eBGP_config += f' neighbor {remote_address} send-community extended\n'
 
-    eBGP_config += f' network {IP_RANGE}/{IP_MASK}\n'
     eBGP_config += 'exit-address-family\n!\n'
     eBGP_config += f'ip{v6} route {IP_RANGE}/{IP_MASK} Null0\n!\n'
 
@@ -252,11 +268,11 @@ def generate_eBGP_interface(router_intents):
         ip_v = ebgp_interfaces["IP_version"]
         ip_address += f'/{ip_mask}'
         vpn = ebgp_interfaces["vpn"]
+        remote_as = ebgp_interfaces["remote_AS"]
+        client_id = 0
         if vpn:
-            interface_config += generate_interface_configuration(interface, ip_address,True, ip_v)
-            vrf_number += 1
-        else:
-            interface_config += generate_interface_configuration(interface, ip_address,False, ip_v)
+            client_id = ebgp_interfaces["client_id"]
+        interface_config += generate_interface_configuration(interface, ip_address, client_id, ip_v, remote_as)
 
     return interface_config
 
