@@ -12,30 +12,30 @@
             "eBGP": true,
             "eBGP_config": [
                 {
-                    "interface": "g2/0",
-                    "remote_AS": 2002,
-                    "link_IP":"2000:100:1:1::/64",
+                    "interface": "g1/0",
+                    "remote_AS": 2,
+                    "link_IP":"2000:100:1:2::/64",
                     "link_mask":64,
                     "IP_version": 6,
-                    "IP_address": "2000:100:1:1::8",
-                    "remote_IP_address": "2000:100:1:1::6",
-                    "local_preference": 200,
-                    "community_in": "2003:20",
-                    "community_out": ["2003:30", "2003:20"],
+                    "IP_address": "2000:100:1:2::1",
+                    "remote_IP_address": "2000:100:1:2::5",
+                    "local_preference":400,
+                    "community_in": "2:10",
+                    "community_out": [],
                     "vpn": true,
                     "client_id": 1
                 },
                 {
-                    "interface": "g1/0",
-                    "remote_AS": 2002,
-                    "link_IP":"2000:100:1:1::/64",
-                    "link_mask":64,
-                    "IP_version": 6,
-                    "IP_address": "2000:100:1:1::8",
-                    "remote_IP_address": "2000:100:1:1::7",
-                    "local_preference": 200,
-                    "community_in": "2003:20",
-                    "community_out": ["2003:30", "2003:20"],
+                    "interface": "g2/0",
+                    "remote_AS": 3,
+                    "link_IP":"10.160.0.0",
+                    "link_mask":"255.255.0.0",
+                    "IP_version": 4,
+                    "IP_address": "10.160.0.1",
+                    "remote_IP_address": "10.160.0.6",
+                    "local_preference": 400,
+                    "community_in": "3:10",
+                    "community_out": [],
                     "vpn": true,
                     "client_id": 2
                 }
@@ -51,7 +51,38 @@
         },
         {
             "router_number": 4,
-            "telnet_port": 5003
+            "telnet_port": 5003,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g1/0",
+                    "remote_AS": 4,
+                    "link_IP":"2000:100:1:4::/64",
+                    "link_mask":64,
+                    "IP_version": 6,
+                    "IP_address": "2000:100:1:4::1",
+                    "remote_IP_address": "2000:100:1:4::7",
+                    "local_preference":400,
+                    "community_in": "2:10",
+                    "community_out": [],
+                    "vpn": true,
+                    "client_id": 1
+                },
+                {
+                    "interface": "g2/0",
+                    "remote_AS": 5,
+                    "link_IP":"10.180.0.0",
+                    "link_mask":"255.255.0.0",
+                    "IP_version": 4,
+                    "IP_address": "10.180.0.4",
+                    "remote_IP_address": "10.180.0.8",
+                    "local_preference": 400,
+                    "community_in": "3:10",
+                    "community_out": [],
+                    "vpn": true,
+                    "client_id": 2
+                }
+            ]
         }
     ]
 }

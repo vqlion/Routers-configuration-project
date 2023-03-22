@@ -72,15 +72,29 @@ def generate_interface_configuration(interface_name, ip_address, vpn_client=0, i
     
     asbr = True
     version = f'v{ip_v}' if ip_v == 6 else ""
+    interface_config = ''
     
     if ip_v == 0: 
         ip_v = IP_VERSION
         version = v6
         asbr = False
 
-    interface_config = f'interface {interface_name}\n'
     if vpn_client:
-        interface_config +=f" ip vrf forwarding {vrf_number}\n" 
+        interface_config += f'vrf definition {vrf_number}\n' 
+        interface_config += f' rd {remote_as}:{vpn_client}\n'
+        interface_config += f' address-family ipv{ip_v}\n'
+        interface_config += f' route-target export {vpn_client}:{vpn_client}\n'
+        interface_config += f' route-target import {vpn_client}:{vpn_client}\n'
+        interface_config += f' exit-address-family\n'
+        interface_config += '!\n'
+        vrfs_list.append(vpn_client)
+        print(f"{vrfs_list}, {ip_v}")
+        vrf_number += 1
+
+    interface_config += f'interface {interface_name}\n'
+    if vpn_client:
+        ip = 'ip' if ip_v == 4 else ''
+        interface_config +=f" {ip} vrf forwarding {vrf_number-1}\n" 
     interface_config += ' no ip address\n'
     # verbose constants depending on the interface type
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n'
@@ -98,16 +112,6 @@ def generate_interface_configuration(interface_name, ip_address, vpn_client=0, i
             interface_config += f' ip{version} ospf {AS_NUMBER} area 0\n' 
         else : ''
     interface_config += '!\n'
-
-    if vpn_client:
-        interface_config += f'ip vrf {vrf_number}\n' 
-        interface_config += f' rd {remote_as}:{vpn_client}\n'
-        interface_config += f' route-target export {remote_as}:{vpn_client}\n'
-        interface_config += f' route-target import {remote_as}:{vpn_client}\n'
-        interface_config += '!\n'
-        vrfs_list.append(vpn_client)
-        print(vrfs_list)
-        vrf_number += 1
     
     return interface_config
 
@@ -221,6 +225,8 @@ def generate_eBGP_configuration(router_intents):
     '''
     global AS_NUMBER
 
+    asbr = True if "eBGP" in router_intents else False
+
     eBGP_config = f'router bgp {AS_NUMBER}\n'
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
@@ -236,21 +242,41 @@ def generate_eBGP_configuration(router_intents):
         eBGP_config += f'address-family ip{ip_v}\n'
         remote_address = ebgp_neighbors["remote_IP_address"]
         link_IP = ebgp_neighbors["link_IP"]
+        link_mask = ebgp_neighbors["link_mask"]
         eBGP_config += f' neighbor {remote_address} activate\n'
-        eBGP_config += f' network {link_IP}\n'
-        eBGP_config += f' network {IP_RANGE}/{IP_MASK}\n'
+        eBGP_config += f' network {link_IP}\n' if ip_v == "v6" else f' network {link_IP} mask {link_mask}\n'
+        # eBGP_config += f' network {IP_RANGE}/{IP_MASK}\n'
         if vpn_client:
             client_id = ebgp_neighbors["client_id"]
             eBGP_config += f"!\naddress-family vpn{ip_v}\n" 
             eBGP_config += f' neighbor {remote_address} activate\n'
             eBGP_config += f' neighbor {remote_address} send-community extended\n'
             eBGP_config += f"!\naddress-family ip{ip_v} vrf {vrfs_list.index(client_id)+1}\n" 
-            print(f'{vrfs_list}, {client_id}')
+            # print(f'{vrfs_list}, {client_id}')
+            eBGP_config += f' redistribute connected\n'
             eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
             eBGP_config += f' neighbor {remote_address} activate\n!\n'
+    if asbr:
+        eBGP_config += 'address-family vpnv6\n'
+
+        for routers in archi['architecture']:
+                neighbor_number = routers['abstract_router_number']
+                neighbor_loopback = routers['loopback_IP']
+                if router_number != neighbor_number:
+                    eBGP_config += f' neighbor {neighbor_loopback} activate\n'
+                    eBGP_config += f' neighbor {neighbor_loopback} send-community extended\n'
+
+        eBGP_config += '!\naddress-family vpnv4\n'
+
+        for routers in archi['architecture']:
+                neighbor_number = routers['abstract_router_number']
+                neighbor_loopback = routers['loopback_IP']
+                if router_number != neighbor_number:
+                    eBGP_config += f' neighbor {neighbor_loopback} activate\n'
+                    eBGP_config += f' neighbor {neighbor_loopback} send-community extended\n'
 
     eBGP_config += 'exit-address-family\n!\n'
-    eBGP_config += f'ip{v6} route {IP_RANGE}/{IP_MASK} Null0\n!\n'
+    # eBGP_config += f'ip{v6} route {IP_RANGE}/{IP_MASK} Null0\n!\n'
 
     return eBGP_config
 
@@ -273,7 +299,7 @@ def generate_eBGP_interface(router_intents):
         ip_address = ebgp_interfaces["IP_address"]
         ip_mask = ebgp_interfaces["link_mask"]
         ip_v = ebgp_interfaces["IP_version"]
-        ip_address += f'/{ip_mask}'
+        ip_address += f'/{ip_mask}' if ip_v == 6 else f' {ip_mask}'
         vpn = ebgp_interfaces["vpn"]
         remote_as = ebgp_interfaces["remote_AS"]
         client_id = 0
@@ -304,7 +330,7 @@ def generate_BGP_policies(router_intents):
         community_in = eBGP_neighbor["community_in"]
         neighbor_IP_address = eBGP_neighbor["remote_IP_address"]
         neighbor_IP_version = eBGP_neighbor["IP_version"]
-        version = "v6" if neighbor_IP_address == 6 else "v4"
+        version = "v6" if neighbor_IP_version == 6 else "v4"
         communities_out = []
         for community in eBGP_neighbor["community_out"]:
             communities_out.append(community)
@@ -374,6 +400,7 @@ vrfs_list = []
 
 # construction of the configuration files
 for routers in archi['architecture']:
+    vrf_number = 1
     # declaration of constants relative to the router
     router_number = routers['abstract_router_number']
     router_name = f'i{router_number}'
