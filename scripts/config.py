@@ -93,8 +93,7 @@ def generate_interface_configuration(interface_name, ip_address, vpn_client=0, i
 
     interface_config += f'interface {interface_name}\n'
     if vpn_client:
-        ip = 'ip' if ip_v == 4 else ''
-        interface_config +=f" {ip} vrf forwarding {vrf_number-1}\n" 
+        interface_config +=f" vrf forwarding {vrf_number-1}\n" 
     interface_config += ' no ip address\n'
     # verbose constants depending on the interface type
     interface_config += ' duplex full\n' if interface_name == 'fe0/0' else ' negotiation auto\n'
@@ -249,8 +248,9 @@ def generate_eBGP_configuration(router_intents):
     eBGP_config = f'router bgp {AS_NUMBER}\n'
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
+        vpn_client = ebgp_neighbors["vpn"]
         remote_as = ebgp_neighbors["remote_AS"]
-        eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
+        eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n' if not vpn_client else ''
 
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
