@@ -209,6 +209,25 @@ def generate_iBGP_configuration(router_number, eBGP_asbr):
                         iBGP_config += f' network {neighbor_network}::/{IP_MASK + 16}\n'
                         announced_networks.append(neighbor_network)
 
+        if eBGP_asbr:
+            iBGP_config += '!\naddress-family vpnv6\n'
+
+            for routers in archi['architecture']:
+                    neighbor_number = routers['abstract_router_number']
+                    neighbor_loopback = routers['loopback_IP']
+                    if router_number != neighbor_number:
+                        iBGP_config += f' neighbor {neighbor_loopback} activate\n'
+                        iBGP_config += f' neighbor {neighbor_loopback} send-community extended\n'
+
+            iBGP_config += '!\naddress-family vpnv4\n'
+
+            for routers in archi['architecture']:
+                    neighbor_number = routers['abstract_router_number']
+                    neighbor_loopback = routers['loopback_IP']
+                    if router_number != neighbor_number:
+                        iBGP_config += f' neighbor {neighbor_loopback} activate\n'
+                        iBGP_config += f' neighbor {neighbor_loopback} send-community extended\n'
+
         iBGP_config += 'exit-address-family\n'
         iBGP_config += '!\n'
 
@@ -238,42 +257,25 @@ def generate_eBGP_configuration(router_intents):
         remote_as = ebgp_neighbors["remote_AS"]
         ip_v = "v6" if ebgp_neighbors["IP_version"] == 6 else "v4"
         vpn_client = ebgp_neighbors["vpn"]
-        eBGP_config += '!\n'
-        eBGP_config += f'address-family ip{ip_v}\n'
-        remote_address = ebgp_neighbors["remote_IP_address"]
-        link_IP = ebgp_neighbors["link_IP"]
-        link_mask = ebgp_neighbors["link_mask"]
-        eBGP_config += f' neighbor {remote_address} activate\n'
-        eBGP_config += f' network {link_IP}\n' if ip_v == "v6" else f' network {link_IP} mask {link_mask}\n'
+        if not vpn_client:
+            eBGP_config += '!\n'
+            eBGP_config += f'address-family ip{ip_v}\n'
+            remote_address = ebgp_neighbors["remote_IP_address"]
+            link_IP = ebgp_neighbors["link_IP"]
+            link_mask = ebgp_neighbors["link_mask"]
+            eBGP_config += f' neighbor {remote_address} activate\n'
+            eBGP_config += f' network {link_IP}\n' if ip_v == "v6" else f' network {link_IP} mask {link_mask}\n!\n'
         # eBGP_config += f' network {IP_RANGE}/{IP_MASK}\n'
         if vpn_client:
             client_id = ebgp_neighbors["client_id"]
-            eBGP_config += f"!\naddress-family vpn{ip_v}\n" 
-            eBGP_config += f' neighbor {remote_address} activate\n'
-            eBGP_config += f' neighbor {remote_address} send-community extended\n'
+            # eBGP_config += f"!\naddress-family vpn{ip_v}\n" 
+            # eBGP_config += f' neighbor {remote_address} activate\n'
+            # eBGP_config += f' neighbor {remote_address} send-community extended\n'
             eBGP_config += f"!\naddress-family ip{ip_v} vrf {vrfs_list.index(client_id)+1}\n" 
             # print(f'{vrfs_list}, {client_id}')
             eBGP_config += f' redistribute connected\n'
             eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
             eBGP_config += f' neighbor {remote_address} activate\n!\n'
-    if asbr:
-        eBGP_config += 'address-family vpnv6\n'
-
-        for routers in archi['architecture']:
-                neighbor_number = routers['abstract_router_number']
-                neighbor_loopback = routers['loopback_IP']
-                if router_number != neighbor_number:
-                    eBGP_config += f' neighbor {neighbor_loopback} activate\n'
-                    eBGP_config += f' neighbor {neighbor_loopback} send-community extended\n'
-
-        eBGP_config += '!\naddress-family vpnv4\n'
-
-        for routers in archi['architecture']:
-                neighbor_number = routers['abstract_router_number']
-                neighbor_loopback = routers['loopback_IP']
-                if router_number != neighbor_number:
-                    eBGP_config += f' neighbor {neighbor_loopback} activate\n'
-                    eBGP_config += f' neighbor {neighbor_loopback} send-community extended\n'
 
     eBGP_config += 'exit-address-family\n!\n'
     # eBGP_config += f'ip{v6} route {IP_RANGE}/{IP_MASK} Null0\n!\n'

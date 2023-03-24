@@ -14,12 +14,12 @@
                 {
                     "interface": "g1/0",
                     "remote_AS": 2,
-                    "link_IP":"2000:100:1:2::/64",
-                    "link_mask":64,
+                    "link_IP": "2000:100:1:2::/64",
+                    "link_mask": 64,
                     "IP_version": 6,
                     "IP_address": "2000:100:1:2::1",
                     "remote_IP_address": "2000:100:1:2::5",
-                    "local_preference":400,
+                    "local_preference": 400,
                     "community_in": "2:10",
                     "community_out": [],
                     "vpn": true,
@@ -28,8 +28,8 @@
                 {
                     "interface": "g2/0",
                     "remote_AS": 3,
-                    "link_IP":"10.160.0.0",
-                    "link_mask":"255.255.0.0",
+                    "link_IP": "10.160.0.0",
+                    "link_mask": "255.255.0.0",
                     "IP_version": 4,
                     "IP_address": "10.160.0.1",
                     "remote_IP_address": "10.160.0.6",
@@ -38,6 +38,19 @@
                     "community_out": [],
                     "vpn": true,
                     "client_id": 2
+                },
+                {
+                    "interface": "g3/0",
+                    "remote_AS": 12,
+                    "link_IP": "DCBA::/64",
+                    "link_mask": 64,
+                    "IP_version": 6,
+                    "IP_address": "DCBA::1",
+                    "remote_IP_address": "DCBA::12",
+                    "local_preference": 400,
+                    "community_in": "3:10",
+                    "community_out": [],
+                    "vpn": false
                 }
             ]
         },
@@ -57,12 +70,12 @@
                 {
                     "interface": "g1/0",
                     "remote_AS": 4,
-                    "link_IP":"2000:100:1:4::/64",
-                    "link_mask":64,
+                    "link_IP": "2000:100:1:4::/64",
+                    "link_mask": 64,
                     "IP_version": 6,
                     "IP_address": "2000:100:1:4::1",
                     "remote_IP_address": "2000:100:1:4::7",
-                    "local_preference":400,
+                    "local_preference": 400,
                     "community_in": "2:10",
                     "community_out": [],
                     "vpn": true,
@@ -71,8 +84,8 @@
                 {
                     "interface": "g2/0",
                     "remote_AS": 5,
-                    "link_IP":"10.180.0.0",
-                    "link_mask":"255.255.0.0",
+                    "link_IP": "10.180.0.0",
+                    "link_mask": "255.255.0.0",
                     "IP_version": 4,
                     "IP_address": "10.180.0.4",
                     "remote_IP_address": "10.180.0.8",
