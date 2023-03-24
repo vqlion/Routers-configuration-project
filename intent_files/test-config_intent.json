@@ -23,7 +23,8 @@
                     "community_in": "2:10",
                     "community_out": [],
                     "vpn": true,
-                    "client_id": 1
+                    "client_id": 1,
+                    "vpn_list": [2]
                 },
                 {
                     "interface": "g2/0",

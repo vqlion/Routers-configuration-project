@@ -56,7 +56,7 @@ def generate_footer():
     return footer
 
 
-def generate_interface_configuration(interface_name, ip_address, vpn_client=0, ip_v=0, remote_as=0):
+def generate_interface_configuration(interface_name, ip_address, ip_v=0, router_intents={"vpn":False}):
     '''
     Returns the configuration of each interface 
         Parameters:
@@ -73,7 +73,12 @@ def generate_interface_configuration(interface_name, ip_address, vpn_client=0, i
     asbr = True
     version = f'v{ip_v}' if ip_v == 6 else ""
     interface_config = ''
-    
+    vpn_client = 0
+    is_vpn = router_intents["vpn"]
+    if is_vpn:
+        vpn_client = router_intents["client_id"]
+        remote_as = router_intents["remote_AS"]
+
     if ip_v == 0: 
         ip_v = IP_VERSION
         version = v6
@@ -85,10 +90,12 @@ def generate_interface_configuration(interface_name, ip_address, vpn_client=0, i
         interface_config += f' address-family ipv{ip_v}\n'
         interface_config += f' route-target export {vpn_client}:{vpn_client}\n'
         interface_config += f' route-target import {vpn_client}:{vpn_client}\n'
+        if "vpn_list" in router_intents:
+            for client in router_intents["vpn_list"]:
+                interface_config += f' route-target import {client}:{client}\n' 
         interface_config += f' exit-address-family\n'
         interface_config += '!\n'
         vrfs_list.append(vpn_client)
-        print(f"{vrfs_list}, {ip_v}")
         vrf_number += 1
 
     interface_config += f'interface {interface_name}\n'
@@ -302,12 +309,7 @@ def generate_eBGP_interface(router_intents):
         ip_mask = ebgp_interfaces["link_mask"]
         ip_v = ebgp_interfaces["IP_version"]
         ip_address += f'/{ip_mask}' if ip_v == 6 else f' {ip_mask}'
-        vpn = ebgp_interfaces["vpn"]
-        remote_as = ebgp_interfaces["remote_AS"]
-        client_id = 0
-        if vpn:
-            client_id = ebgp_interfaces["client_id"]
-        interface_config += generate_interface_configuration(interface, ip_address, client_id, ip_v, remote_as)
+        interface_config += generate_interface_configuration(interface, ip_address, ip_v, ebgp_interfaces)
 
     return interface_config
 
@@ -367,7 +369,7 @@ def generate_BGP_policies(router_intents):
         if "AS_path_prepend" in eBGP_neighbor:
             BGP_configuration += f"route-map map_out_{count} permit 5\n"
             BGP_configuration += f' set as-path prepend '
-            x = eBGP_neighbor["AS_path_prepend"]
+            x = eBGP_neighbor["AS_path_prepend"] # bad variable name but it is only used in one line and i am lazy
             for _ in range(x):
                 BGP_configuration+= f'{AS_NUMBER} '
             BGP_configuration += '\n!\n'
