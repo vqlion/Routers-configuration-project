@@ -94,6 +94,19 @@
                     "community_out": [],
                     "vpn": true,
                     "client_id": 2
+                },
+                {
+                    "interface": "g3/0",
+                    "remote_AS": 11,
+                    "link_IP": "ABCD::/64",
+                    "link_mask": 64,
+                    "IP_version": 6,
+                    "IP_address": "ABCD::4",
+                    "remote_IP_address": "ABCD::11",
+                    "local_preference": 400,
+                    "community_in": "3:10",
+                    "community_out": [],
+                    "vpn": false
                 }
             ]
         }
