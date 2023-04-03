@@ -4,7 +4,7 @@ import sys
 
 HOST = "localhost"
 
-def generate_interface_configuration(interface_name, ip_address, tn, asbr=False):
+def generate_interface_configuration(interface_name, ip_address, tn,ip_v=0,router_intents={"vpn":False}):
     # returns the configuration of the interface
     # parameters:
     # interface_name: the name of the interface
@@ -21,25 +21,77 @@ def generate_interface_configuration(interface_name, ip_address, tn, asbr=False)
     '''
     global AS_NUMBER
     global IGP
+    global vrf_number
 
+    asbr = True
+    version = f'v{ip_v}' if ip_v == 6 else ""
+    vpn_client = 0
+    is_vpn = router_intents["vpn"]
+    if is_vpn:
+        vpn_client = router_intents["client_id"]
+        remote_as = router_intents["remote_AS"]
+
+    if ip_v == 0: 
+        ip_v = IP_VERSION
+        version = v6
+        asbr = False
+
+    if asbr:
+        tn.write(b'end\r\n')
+        tn.write(b'end\r\n')
+        tn.write(b'conf t\r\n')
+        tn.write(str.encode(f'ip vrf {vrf_number}\r\n'))
+        tn.write(str.encode(f'rd {remote_as}:{vpn_client}\r\n'))
+        tn.write(str.encode(f'route-target export {vpn_client}:{vpn_client}\r\n'))
+        tn.write(str.encode(f'route-target import {vpn_client}:{vpn_client}\r\n'))
+        if "vpn_list" in router_intents:
+            for client in router_intents["vpn_list"]:
+                tn.write(str.encode(f'route-target import {client}:{client}'))
+        tn.write(b'exit\r\n')
+
+        vrfs_list.append(vpn_client)
+        vrf_number += 1
+
+    
     tn.write(b'end\r\n')
     tn.write(b'end\r\n')
     tn.write(b'conf t\r\n')
     tn.write(str.encode(f'int {interface_name}\r\n'))
     tn.write(b'no ip address\r\n')
     tn.write(b'no ipv6 address\r\n')
-    tn.write(str.encode(f'ipv6 address {ip_address}\r\n'))
-    tn.write(b'ipv6 enable\r\n')
-    if not asbr:
-        if IGP == 'RIP':
-            tn.write(str.encode(f'no ipv6 ospf {AS_NUMBER} area 0\r\n'))
-            tn.write(b'ipv6 rip ripng enable\r\n')
-        if IGP == 'OSPF':
-            tn.write(str.encode(f'ipv6 ospf {AS_NUMBER} area 0\r\n'))
-            tn.write(b'no ipv6 rip ripng enable\r\n')
+    if is_vpn: 
+        tn.write(str.encode(f'vrf forwarding {vrf_number-1}\r\n'))
+    if ip_v==6:
+        tn.write(str.encode(f'ipv6 address {ip_address}\r\n'))
+        tn.write(b'ipv6 enable\r\n')
+    if ip_v==4:
+        tn.write(str.encode(f'ip adress {ip_address}\r\n'))
     tn.write(b'no shutdown\r\n')
     tn.write(b'end\r\n')
 
+    if not asbr:
+        tn.write(b'conf t\r\n')
+        tn.write(str.encode(f'int {interface_name}\r\n'))
+        if IP_VERSION == 6:
+            if IGP == 'RIP':
+                tn.write(str.encode(f'no ipv6 ospf {AS_NUMBER} area 0\r\n'))
+                tn.write(b'ipv6 rip ripng enable\r\n')
+            if IGP == 'OSPF':
+                tn.write(b'no ipv6 rip ripng enable\r\n')
+                tn.write(str.encode(f'ipv6 ospf {AS_NUMBER} area 0\r\n'))
+        if IP_VERSION == 4:
+            tn.write(b'mpls ip\r\n')
+            if IGP == 'RIP':
+                tn.write(str.encode(f'no ipv ospf {AS_NUMBER} area 0\r\n'))
+                tn.write(b'ip rip ripng enable\r\n')
+            if IGP == 'OSPF':
+                tn.write(b'no ip rip ripng enable\r\n')
+                tn.write(str.encode(f'ip ospf {AS_NUMBER} area 0\r\n'))
+    tn.write(b'no shutdown\r\n')
+    tn.write(b'end\r\n')
+
+    
+    
 def generate_eBGP_interface(router_intents, tn):
     # returns the configuration of an eBGP interface
     # parameters:
@@ -86,15 +138,6 @@ def generate_loopback_configuration(loopback_address, tn):
     tn.write(b'no ipv6 address\r\n')
     tn.write(str.encode(f'ipv6 address {loopback_address}/{IP_MASK+16}\r\n'))
     tn.write(b'ipv6 enable\r\n')
-    if IGP == 'RIP':
-        tn.write(str.encode(f'no ipv6 ospf {AS_NUMBER} area 0\r\n'))
-        tn.write(b'ipv6 rip ripng enable\r\n')
-    if IGP == 'OSPF':
-        tn.write(b'no ipv6 rip ripng enable\r\n')
-        tn.write(str.encode(f'ipv6 ospf {AS_NUMBER} area 0\r\n'))
-    tn.write(b'no shutdown\r\n')
-    tn.write(b'end\r\n')
-    tn.read_very_eager()
 
 def generate_cost_configuration(router_intents, tn):
     '''
@@ -120,6 +163,7 @@ def generate_cost_configuration(router_intents, tn):
             tn.read_very_eager()
 
 def generate_OSPF_configuration(router_number, tn):
+
     tn.write(b'end\r\n')
     tn.write(b'end\r\n')
     tn.write(b'conf t\r\n')
@@ -317,8 +361,13 @@ if len(sys.argv) == 3:
         sys.exit(1)
     target_router = int(sys.argv[2])
 
-AS_NUMBER, AS_INTENTS, ARCHITECTURE_PATH, IGP, IP_RANGE, IP_MASK = io_h.get_intents(
+link_ip_list = []
+vrfs_list = []
+vrf_number = 1
+AS_NUMBER, AS_INTENTS, ARCHITECTURE_PATH, IGP, IP_RANGE, IP_MASK, IP_VERSION = io_h.get_intents(
     intent_path)
+v6 = "v6" if IP_VERSION == 6 else ""
+v4 = "v4" if IP_VERSION == 4 else ""
 router_intent_list = AS_INTENTS["routers"]
 if target_router == None: print("Starting the configuration of the routers in AS", AS_NUMBER, "...")
 else: print("Starting the configuration of router", target_router, "...")
