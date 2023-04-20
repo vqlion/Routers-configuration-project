@@ -266,6 +266,7 @@ def generate_eBGP_configuration(router_intents):
             eBGP_config += f' network {link_IP}\n' if ip_v == "v6" else f' network {link_IP} mask {link_mask}\n!\n'
         if is_vpn_client:
             vpn_client_id = ebgp_neighbors["client_id"]
+            print(vrfs_list, vrfs_list.index(vpn_client_id), vpn_client_id)
             eBGP_config += f"!\naddress-family ip{ip_v} vrf {vrfs_list.index(vpn_client_id)+1}\n" 
             eBGP_config += f' redistribute connected\n'
             eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
@@ -390,7 +391,8 @@ vrfs_list = []
 
 # construction of the configuration files
 for router in NETWORK_ARCHITECTURE['architecture']:
-    vrf_counter = 1 # resetting the vrf counter for each router 
+    vrf_counter = 1 # resetting the vrf counter for each router
+    vrfs_list = [] # resetting the vrfs list for each router 
     # declaration of constants relative to the router
     router_number = router['abstract_router_number']
     router_name = f'i{router_number}'
