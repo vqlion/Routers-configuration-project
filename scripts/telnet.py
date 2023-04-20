@@ -4,7 +4,7 @@ import sys
 
 HOST = "localhost"
 
-def generate_interface_configuration(interface_name, ip_address, tn,ip_v=0,router_intents={"vpn":False}):
+def generate_interface_configuration(interface_name, ip_address, tn,router_intents={"vpn":False},ip_v=0):
     # returns the configuration of the interface
     # parameters:
     # interface_name: the name of the interface
@@ -107,15 +107,16 @@ def generate_eBGP_interface(router_intents, tn):
     global IGP
 
     ASBR = True
-    interface_config = ''
     for ebgp_interfaces in router_intents["eBGP_config"]:
         interface = ebgp_interfaces["interface"]
         ip_address = ebgp_interfaces["IP_address"]
         ip_mask = ebgp_interfaces["link_mask"]
         ip_address += f'/{ip_mask}'
-        generate_interface_configuration(interface, ip_address, tn, ASBR)
+        ip_version = ebgp_interfaces["IP_version"]
+        ip_address += f'/{ip_mask}' if ip_version == 6 else f' {ip_mask}'
+        generate_interface_configuration(interface, ip_address, tn,ebgp_interfaces, ip_v=0)
 
-def generate_loopback_configuration(loopback_address, tn):
+def generate_loopback_configuration(loopback_address,tn):
     # returns the configuration of a loopback interface
     # parameters:
     # loopback_address: the loopback_address
@@ -134,10 +135,23 @@ def generate_loopback_configuration(loopback_address, tn):
     tn.write(b'end\r\n')
     tn.write(b'conf t\r\n')
     tn.write(b'int Loopback0\r\n')
-    tn.write(b'no ip address\r\n')
-    tn.write(b'no ipv6 address\r\n')
-    tn.write(str.encode(f'ipv6 address {loopback_address}/{IP_MASK+16}\r\n'))
-    tn.write(b'ipv6 enable\r\n')
+    if IP_VERSION == 6:
+        tn.write(b'no ip address\r\n')
+        tn.write(b'no ipv6 address\r\n')
+        tn.write(str.encode(f'ipv6 address {loopback_address}/{IP_MASK+16}\r\n'))
+        tn.write(b'ipv6 enable\r\n')
+    if IP_VERSION == 4:
+        tn.write(b'no ip address\r\n')
+        tn.write(b'no ipv6 address\r\n')
+        tn.write(str.encode(f'ip address {loopback_address} 255.255.255.255\r\n'))
+    tn.write(b'no shutdown\r\n')
+    if IGP == 'RIP':
+        tn.write(str.encode(f' ip{v6} rip ripng enable\r\n'))
+    elif IGP == 'OSPF':
+        tn.write(str.encode(f' ip{v6} ospf {AS_NUMBER} area 0\r\n')) 
+    else : 
+        tn.write (b'end\r\n')
+    tn.write(b'end\r\n')
 
 def generate_cost_configuration(router_intents, tn):
     '''
@@ -169,9 +183,15 @@ def generate_OSPF_configuration(router_number, tn):
     tn.write(b'conf t\r\n')
     tn.write(str.encode(f'ipv6 router ospf {AS_NUMBER}\r\n'))
     tn.read_very_eager()
-    tn.write(str.encode(f'router-id {router_number}.{router_number}.{router_number}.{router_number}\r\n'))
-    tn.write(b'end\r\n')
-    tn.read_very_eager()
+    if IP_VERSION == 6:
+        tn.write(str.encode(f'router-id {router_number}.{router_number}.{router_number}.{router_number}\r\n'))
+        tn.write(b'end\r\n')
+        tn.read_very_eager()
+    if IP_VERSION == 4:
+        tn.write(str.encode(f' router-id {loopback_address}\r\n'))
+        tn.write(b'end\r\n')
+        tn.read_very_eager()
+    
 
 def generate_RIP_configuration(tn):
     tn.write(b'end\r\n')
@@ -202,15 +222,35 @@ def generate_eBGP_configuration(router_intents, tn):
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
         remote_as = ebgp_neighbors["remote_AS"]
-        tn.write(str.encode(f'neighbor {remote_address} remote-as {remote_as}\r\n'))
-    
-    tn.write(b'address-family ipv6\r\n')
+        is_vpn_client = ebgp_neighbors["vpn"]
+        if not is_vpn_client : 
+            tn.write(str.encode(f'neighbor {remote_address} remote-as {remote_as}\r\n'))
 
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
         link_IP = ebgp_neighbors["link_IP"]
-        tn.write(str.encode(f'neighbor {remote_address} activate\r\n'))
-        tn.write(str.encode(f'network {link_IP}\r\n'))
+        ip_v = "v6" if ebgp_neighbors["IP_version"] == 6 else "v4"
+        is_vpn_client = ebgp_neighbors["vpn"]
+        remote_as = ebgp_neighbors["remote_AS"]
+
+        if not is_vpn_client:
+            tn.write(str.encode(f'address-family ip{ip_v}\r\n'))    
+            remote_address = ebgp_neighbors["remote_IP_address"]
+            link_IP = ebgp_neighbors["link_IP"]
+            link_mask = ebgp_neighbors["link_mask"]
+            tn.write(str.encode(f'neighbor {remote_address} activate\r\n'))
+            if ip_v == "v6":
+                tn.write(str.encode(f'network {link_IP}\r\n'))
+            else: 
+                tn.write(str.encode(f'network {link_IP} mask {link_mask}\r\n'))
+        
+        if is_vpn_client:
+            vpn_client_id = ebgp_neighbors["client_id"]
+            tn.write(str.encode(f'address-family ip{ip_v} vrf {vrfs_list.index(vpn_client_id)+1}\r\n'))
+            tn.write(b'redsitribute connected\r\n')
+            tn.write(str.encode(f'neighbor {remote_address} remote-as {remote_as}\r\n'))
+            tn.write(str.encode(f' neighbor {remote_address} activate\r\n'))
+
 
     tn.write(str.encode(f'network {IP_RANGE}/{IP_MASK}\r\n'))
     tn.write(b'end\r\n')
@@ -220,6 +260,7 @@ def generate_eBGP_configuration(router_intents, tn):
     tn.write(str.encode(f'ipv6 route {IP_RANGE}/{IP_MASK} Null0\r\n'))
 
     tn.write(b'end\r\n')
+    #tn.write(b'exit-address-family\r\n')
     tn.read_very_eager()
 
 def generate_BGP_policies(router_intents, tn):
@@ -316,7 +357,8 @@ def generate_iBGP_configuration(router_number, eBGP_asbr, tn):
     tn.write(b'conf t\r\n')
     tn.write(str.encode(f'router bgp {AS_NUMBER}\r\n'))
     tn.write(str.encode(f' bgp router-id {router_number}.{router_number}.{router_number}.{router_number}\r\n'))
-    tn.write(b'no bgp default ipv4-unicast\r\n')
+    if IP_VERSION == 6:   
+        tn.write(b'no bgp default ipv4-unicast\r\n')
     for routers in archi['architecture']:
         neighbor_number = routers['abstract_router_number']
         neighbor_loopback = routers['loopback_IP']
@@ -324,7 +366,10 @@ def generate_iBGP_configuration(router_number, eBGP_asbr, tn):
             tn.write(str.encode(f'neighbor {neighbor_loopback} remote-as {AS_NUMBER}\r\n'))
             tn.write(str.encode(f'neighbor {neighbor_loopback} update-source Loopback0\r\n'))
 
-    tn.write(b'address-family ipv6\r\n')
+    tn.write(b'address-family ipv4\r\n')
+
+    if IP_VERSION == 6:
+        tn.write(b'address-family ipv6\r\n')
 
     for routers in archi['architecture']:
         neighbor_number = routers['abstract_router_number']
@@ -333,17 +378,44 @@ def generate_iBGP_configuration(router_number, eBGP_asbr, tn):
             tn.write(str.encode(f'neighbor {neighbor_loopback} activate\r\n'))
             tn.write(str.encode(f'neighbor {neighbor_loopback} send-community\r\n'))
 
+    tn.write(b'exit\r\n')
+    tn.write(b'address-family vpnv6\r\n')
+    for routers in archi['architecture']:
+        neighbor_number = routers['abstract_router_number']
+        neighbor_loopback = routers['loopback_IP']
+        if router_number != neighbor_number:
+            tn.write(str.encode(f'neighbor {neighbor_loopback} activate\r\n'))
+            tn.write(str.encode(f'neighbor {neighbor_loopback} send-community extended\r\n'))
+
+    tn.write(b'exit\r\n')
+    tn.write(b'address-family vpnv4\r\n')
+    for routers in archi['architecture']:
+        neighbor_number = routers['abstract_router_number']
+        neighbor_loopback = routers['loopback_IP']
+        if router_number != neighbor_number:
+            tn.write(str.encode(f'neighbor {neighbor_loopback} activate\r\n'))
+            tn.write(str.encode(f'neighbor {neighbor_loopback} send-community extended\r\n'))
+
+
     announced_networks = []
     for routers in archi['architecture']:
         if eBGP_asbr == False:
             for neighbors in routers["neighbors"]:
                 neighbor_network = neighbors['link_IP']
+                neighbor_mask = neighbors['link_mask']
                 if not neighbor_network in announced_networks:
-                    tn.write(str.encode(f'network {neighbor_network}::/{IP_MASK + 16}\r\n'))
+                    if IP_VERSION == 6:
+                        tn.write(str.encode(f'network {neighbor_network}::/{IP_MASK + 16}\r\n'))
+                    if IP_VERSION == 4:
+                        tn.write(str.encode(f'network {neighbor_network} mask {neighbor_mask}\r\n'))
+
                     announced_networks.append(neighbor_network)
 
     tn.write(b'end\r\n')
+    tn.write(b'exit-address-family\r\n')
     tn.read_very_eager()
+    
+
     
 
 if len(sys.argv) < 2:
@@ -363,16 +435,16 @@ if len(sys.argv) == 3:
 
 link_ip_list = []
 vrfs_list = []
-vrf_number = 1
-AS_NUMBER, AS_INTENTS, ARCHITECTURE_PATH, IGP, IP_RANGE, IP_MASK, IP_VERSION = io_h.get_intents(
-    intent_path)
+vrf_counter = 1
+
+AS_NUMBER, AS_INTENTS, ARCHITECTURE_PATH, IGP, IP_RANGE, IP_MASK, IP_VERSION = io_h.get_intents(intent_path)
 v6 = "v6" if IP_VERSION == 6 else ""
 v4 = "v4" if IP_VERSION == 4 else ""
 router_intent_list = AS_INTENTS["routers"]
 if target_router == None: print("Starting the configuration of the routers in AS", AS_NUMBER, "...")
 else: print("Starting the configuration of router", target_router, "...")
 
-archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE)
+archi = io_h.generate_ip_address(ARCHITECTURE_PATH, IP_RANGE, IP_VERSION, IP_MASK)
 
 for routers in archi['architecture']:
     # declaration of constants relative to the router
@@ -398,8 +470,19 @@ for routers in archi['architecture']:
         for neighbors in routers['neighbors']:
             interface_name = neighbors['interface']
             link_ip = neighbors['link_IP']
-            ip_address = f'{link_ip}::{router_number}/{IP_MASK+16}'
-            neighbors.update({"ip_address": ip_address})
+            if IP_VERSION == 6:
+                tn.write(str.encode(f'{link_ip}::{router_number}/{IP_MASK+16}\r\n'))
+                ip_address = f'{link_ip}::{router_number}/{IP_MASK+16}'
+            elif IP_VERSION == 4:
+                address_suffix = 1
+                if link_ip in link_ip_list:
+                    address_suffix = 2
+                else:
+                    link_ip_list.append(link_ip)
+
+                tn.write(str.encode(f'{link_ip}.{address_suffix} 255.255.255.252\r\n')) # link ips are hardwritten is 32 mask for now
+                ip_address =f'{link_ip}.{address_suffix} 255.255.255.252'
+            
             generate_interface_configuration(interface_name, ip_address, tn)
             tn.read_until(b'Configured from console by console')
 

@@ -275,7 +275,6 @@ def generate_eBGP_configuration(router_intents):
 
     return eBGP_config
 
-
 def generate_eBGP_interface(router_intents):
     '''
       Returns the configuration of an eBGP interface (that is, an interface outside of the AS).
