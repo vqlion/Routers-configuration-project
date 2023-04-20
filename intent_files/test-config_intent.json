@@ -42,14 +42,14 @@
                 },
                 {
                     "interface": "g3/0",
-                    "remote_AS": 12,
+                    "remote_AS": 10,
                     "link_IP": "8.0.0.0",
                     "link_mask": "255.0.0.0",
                     "IP_version": 4,
                     "IP_address": "8.8.8.1",
-                    "remote_IP_address": "8.8.8.12",
+                    "remote_IP_address": "8.8.8.10",
                     "local_preference": 400,
-                    "community_in": "3:10",
+                    "community_in": "10:10",
                     "community_out": [],
                     "vpn": false
                 }
@@ -105,9 +105,30 @@
                     "IP_address": "9.9.9.4",
                     "remote_IP_address": "9.9.9.11",
                     "local_preference": 400,
-                    "community_in": "3:10",
+                    "community_in": "11:10",
                     "community_out": [],
                     "vpn": false
+                }
+            ]
+        },
+        {
+            "router_number": 5,
+            "telnet_port": 5004,
+            "eBGP": true,
+            "eBGP_config": [
+                {
+                    "interface": "g1/0",
+                    "remote_AS": 3,
+                    "link_IP": "10.161.0.0",
+                    "link_mask": "255.255.0.0",
+                    "IP_version": 4,
+                    "IP_address": "10.161.0.5",
+                    "remote_IP_address": "10.161.0.6",
+                    "local_preference": 400,
+                    "community_in": "2:10",
+                    "community_out": [],
+                    "vpn": true,
+                    "client_id": 2
                 }
             ]
         }
