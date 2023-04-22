@@ -130,8 +130,6 @@ def generate_cost_configuration(router_intents):
       Returns the OSPF cost configuration for a router's interfaces. The router is specified via the router_intents parameter.
         Parameters:
                 router_intents (dict): a dictionary describing the intents of the router. More details in the documentation.
-        Method: 
-
         Returns:
             cost_config (str): the OSPF cost of each interface for the given router.
     '''
@@ -254,20 +252,19 @@ def generate_eBGP_configuration(router_intents):
     for ebgp_neighbors in router_intents["eBGP_config"]:
         remote_address = ebgp_neighbors["remote_IP_address"]
         remote_as = ebgp_neighbors["remote_AS"]
-        ip_v = "v6" if ebgp_neighbors["IP_version"] == 6 else "v4"
+        ip_version = "v6" if ebgp_neighbors["IP_version"] == 6 else "v4"
         is_vpn_client = ebgp_neighbors["vpn"]
         if not is_vpn_client:
             eBGP_config += '!\n'
-            eBGP_config += f'address-family ip{ip_v}\n'
+            eBGP_config += f'address-family ip{ip_version}\n'
             remote_address = ebgp_neighbors["remote_IP_address"]
             link_IP = ebgp_neighbors["link_IP"]
             link_mask = ebgp_neighbors["link_mask"]
             eBGP_config += f' neighbor {remote_address} activate\n'
-            eBGP_config += f' network {link_IP}\n' if ip_v == "v6" else f' network {link_IP} mask {link_mask}\n!\n'
+            eBGP_config += f' network {link_IP}\n' if ip_version == "v6" else f' network {link_IP} mask {link_mask}\n!\n'
         if is_vpn_client:
             vpn_client_id = ebgp_neighbors["client_id"]
-            print(vrfs_list, vrfs_list.index(vpn_client_id), vpn_client_id)
-            eBGP_config += f"!\naddress-family ip{ip_v} vrf {vrfs_list.index(vpn_client_id)+1}\n" 
+            eBGP_config += f"!\naddress-family ip{ip_version} vrf {vrfs_list.index(vpn_client_id)+1}\n" 
             eBGP_config += f' redistribute connected\n'
             eBGP_config += f' neighbor {remote_address} remote-as {remote_as}\n'
             eBGP_config += f' neighbor {remote_address} activate\n!\n'
@@ -424,7 +421,7 @@ for router in NETWORK_ARCHITECTURE['architecture']:
                 else:
                     link_ip_list.append(link_ip)
 
-                ip_address = f'{link_ip}.{address_suffix} 255.255.255.252' # link ips are hardwritten is 32 mask for now
+                ip_address = f'{link_ip}.{address_suffix} 255.255.255.252' # link ips are hardwritten in 32 mask for now
                 
             neighbor.update({"ip_address": ip_address})
             config_file.write(generate_interface_configuration(
