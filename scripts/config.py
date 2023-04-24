@@ -146,7 +146,7 @@ def generate_cost_configuration(router_intents):
 def generate_loopback_configuration(loopback_address):
     '''
     Returns configuration of a given loopback interface as a string.
-    One router can have only one loopback address.
+    A router can have one loopback address.
 
         Parameters:
                 loopback_address (str): the ip address of the loopback interface. It can be ipv4 or ipv6.
@@ -299,7 +299,7 @@ def generate_eBGP_interface(router_intents):
 
 def generate_BGP_policies(router_intents):
     '''
-      Returns the BGP policies' configuration. The BGP policied are the following:
+      Returns the BGP policies' configuration. The BGP policies are the following:
         -  Local preference configuration
         -  BGP communities to choose to which neighbors a given route has to be advertised
         -  Filtering the private IP addresses

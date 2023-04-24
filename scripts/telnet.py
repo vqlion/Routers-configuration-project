@@ -5,20 +5,18 @@ import sys
 HOST = "localhost"
 
 
-def generate_interface_configuration(interface_name, ip_address, tn, ip_version=0, interface_intents={"vpn": False}):
-    # returns the configuration of the interface
-    # parameters:
-    # interface_name: the name of the interface
-    # ip_address: the ip address of the interface
-    # asbr: a boolean set to True if the router is an asbr
+def generate_interface_configuration_telnet(interface_name, ip_address, tn, ip_version=0, interface_intents={"vpn": False}):
     '''
-    Returns the configuration of each interface 
+    Configures a given interface over a telnet connection.
+
+    Generates configurations of ipv4 and ipv6 interfaces. It also generates the configuration of the associated VRF if needed. 
+    More details on the interface_intents can be found in the documentation. 
         Parameters:
-                interface_name(str): a string
-                ip_address(str)    : a string
-                absr(boolean)      : a boolean value if the router is an autonomous system border router (only for OSPF and RIP)
-        Returns:
-                generate_interface_configuration(str): A String on multiple lines which is the configuration of each interface
+                interface_name (str): the name of the interface (e.g. g1/0).
+                ip_address (str): the ip address associated to the interface. It can be ipv4 or ipv6, and the mask has to be specified.
+                tn (Telnet): the telnet connection used for the router.
+                ip_version (int): (optional) the version of the ip address. If not specified, the configuration will be written for an interior interface (one that is not linked to a router outside of the AS), and the version will be the global version of the network. If specified, the configuration will be writtent for a border interface (one that communicates with the outside of the AS). 
+                interface_intents (dict): (optional) a dictionnary that contains the intents of the specified interface. Required if the interface is outside of the AS.
     '''
     global AS_NUMBER
     global IGP
@@ -96,16 +94,12 @@ def generate_interface_configuration(interface_name, ip_address, tn, ip_version=
     tn.read_very_eager()
 
 
-def generate_eBGP_interface(router_intents, tn):
-    # returns the configuration of an eBGP interface
-    # parameters:
-    # router_intents: a dictionnary containing the eBGP intents of the interface
+def generate_eBGP_interface_telnet(router_intents, tn):
     '''
-      Returns the external BGP configuration of the interface 
+      Configures the external BGP part of a given router over a telnet connection.
         Parameters:
-            router_intents(): a dictionary which contains the actual commands for eBGP configuration for an interface
-        Returns:
-            generate_eBGP_interface(str): A String on multiple lines which is the configuration of the external BGP for each interface 
+            router_intents (dict): a dictionary with the routers intents. More details in the documentation.
+            tn (Telnet): the telnet connection used for the router.
     '''
     global AS_NUMBER
     global IGP
@@ -116,20 +110,17 @@ def generate_eBGP_interface(router_intents, tn):
         ip_mask = ebgp_interfaces["link_mask"]
         ip_version = ebgp_interfaces["IP_version"]
         ip_address += f'/{ip_mask}' if ip_version == 6 else f' {ip_mask}'
-        generate_interface_configuration(
+        generate_interface_configuration_telnet(
             interface, ip_address, tn, ip_version, ebgp_interfaces)
 
 
-def generate_loopback_configuration(loopback_address, tn):
-    # returns the configuration of a loopback interface
-    # parameters:
-    # loopback_address: the loopback_address
+def generate_loopback_configuration_telnet(loopback_address, tn):
     '''
-    Returns the loopback configuration for each AS 
+    Configures a given loopback interface over a telnet connection.
+    A router can have one loopback address.
         Parameters:
-                loopback_address(str): an unique string 
-         Returns:
-                generate_loopback_configuration(str): A String on multiple lines which configures the loopback address for each AS
+            loopback_address (str): the ip address of the loopback interface. It can be ipv4 or ipv6.
+            tn (Telnet): the telnet connection used for the router.
     '''
     global AS_NUMBER
     global IGP
@@ -158,13 +149,12 @@ def generate_loopback_configuration(loopback_address, tn):
     tn.read_very_eager()
 
 
-def generate_cost_configuration(router_intents, tn):
+def generate_cost_configuration_telnet(router_intents, tn):
     '''
-      Returns the cost of the network configuration
+      Configures the OSPF cost for a router's interfaces over a telnet connection. The router is specified via the router_intents parameter.
         Parameters:
-                router_intents(): a dictionary 
-        Returns:
-            generate_cost_configuration(str): A String which is the cost for each interface in the OSPF
+            router_intents (dict): a dictionary describing the intents of the router. More details in the documentation.
+            tn (Telnet): the telnet connection used for the router.
     '''
     if "cost_parameters" in router_intents:
         cost_parameters = router_intents["cost_parameters"]
@@ -180,8 +170,7 @@ def generate_cost_configuration(router_intents, tn):
             tn.read_very_eager()
 
 
-def generate_OSPF_configuration(router_number, tn):
-
+def generate_OSPF_configuration_telnet(router_number, tn):
     tn.write(b'end\r\n')
     tn.write(b'end\r\n')
     tn.write(b'conf t\r\n')
@@ -197,7 +186,7 @@ def generate_OSPF_configuration(router_number, tn):
     tn.read_very_eager()
 
 
-def generate_RIP_configuration(tn):
+def generate_RIP_configuration_telnet(tn):
     tn.write(b'end\r\n')
     tn.write(b'end\r\n')
     tn.write(b'conf t\r\n')
@@ -206,17 +195,13 @@ def generate_RIP_configuration(tn):
     tn.write(b'end\r\n')
 
 
-def generate_eBGP_configuration(router_intents, tn):
+def generate_eBGP_configuration_telnet(router_intents, tn):
     '''
-      Returns the external BGP configuration 
+      Configures the external BGP part of a given router over a telnet connection.
         Parameters:
-            router_intents(): a dictionary which contains the actual commands for eBGP configuration for a router 
-        Returns:
-            generate_eBGP_configuration(str): A String on multiple lines which is the configuration of the external BGP for each router
+            router_intents (dict): a dictionary with the routers intents. More details in the documentation.
+            tn (Telnet): the telnet connection used for the router.
     '''
-    # returns the eBGP configuration of a router's interface
-    # parameters:
-    # router_intents: a dictionnary containing the eBGP intents of the interface
     global AS_NUMBER
 
     tn.write(b'end\r\n')
@@ -263,18 +248,17 @@ def generate_eBGP_configuration(router_intents, tn):
     tn.read_very_eager()
 
 
-def generate_BGP_policies(router_intents, tn):
+def generate_BGP_policies_telnet(router_intents, tn):
     '''
-      Returns the configuration of the 4 BGP policies:
+      Configures the BGP policies part of a given router over a telnet connection. The BGP policies are the following:
         -  Local preference configuration
-        -  Making the Communities
+        -  BGP communities to choose to which neighbors a given route has to be advertised
         -  Filtering the private IP addresses
-        -  AS prepanding
-
+        -  AS prepending
+                                   
         Parameters:
-            router_intents(): a dictionary  
-        Returns:
-            generate_BGP_policies(str): A String on multiple lines which configures each BGP policy  
+            router_intents (dict): a dictionary with the routers intents. More details in the documentation. 
+            tn (Telnet): the telnet connection used for the router. 
     '''
     neighbor_count = 0
     for eBGP_neighbor in router_intents["eBGP_config"]:
@@ -350,18 +334,12 @@ def generate_BGP_policies(router_intents, tn):
         neighbor_count += 1
 
 
-def generate_iBGP_configuration(router_number, tn):
-    # returns the iBGP configuration of the router
-    # parameters:
-    # router_number: the id of the router
-    # eBGP: a boolean set to true if the router is an ASBR
+def generate_iBGP_configuration_telnet(router_number, tn):
     '''
-    Returns the internal BGP configuration for each AS 
+    Configures the internal BGP part of a given router over a telnet connection.
         Parameters:
-               router_number(str): an unique string 
-               eBGP(boolean): a boolean value if the router is an autonomous system border router (R6, R7, R8, R9)
-         Returns:
-                generate_loopback_configuration(str): A String on multiple lines which configures the loopback address for each AS
+            router_number (int): the router's id.  
+            tn (Telnet): the telnet connection used for the router. 
     '''
     global AS_NUMBER
 
@@ -481,7 +459,7 @@ for routers in NETWORK_ARCHITECTURE['architecture']:
         tn.write(b'end\r\n')
 
         loopback_address = routers["loopback_IP"]
-        generate_loopback_configuration(loopback_address, tn)
+        generate_loopback_configuration_telnet(loopback_address, tn)
         # waits until the command was effectively interpreted
         tn.read_until(b'Configured from console by console')
 
@@ -500,28 +478,28 @@ for routers in NETWORK_ARCHITECTURE['architecture']:
                 # link ips are hardwritten in 32 mask for now
                 ip_address = f'{link_ip}.{address_suffix} 255.255.255.252'
 
-            generate_interface_configuration(interface_name, ip_address, tn)
+            generate_interface_configuration_telnet(interface_name, ip_address, tn)
             tn.read_until(b'Configured from console by console')
 
-        generate_cost_configuration(router_intents, tn)
+        generate_cost_configuration_telnet(router_intents, tn)
         if "eBGP" in router_intents:
-            generate_iBGP_configuration(router_number, tn)
+            generate_iBGP_configuration_telnet(router_number, tn)
             tn.read_until(b'Configured from console by console')
 
-            generate_eBGP_interface(router_intents, tn)
+            generate_eBGP_interface_telnet(router_intents, tn)
             tn.read_until(b'Configured from console by console')
 
-            generate_eBGP_configuration(router_intents, tn)
+            generate_eBGP_configuration_telnet(router_intents, tn)
             tn.read_until(b'Configured from console by console')
 
-            generate_BGP_policies(router_intents, tn)
+            generate_BGP_policies_telnet(router_intents, tn)
             tn.read_until(b'Configured from console by console')
 
         if IGP == "OSPF":
-            generate_OSPF_configuration(router_number, tn)
+            generate_OSPF_configuration_telnet(router_number, tn)
 
         if IGP == 'RIP':
-            generate_RIP_configuration(tn)
+            generate_RIP_configuration_telnet(tn)
 
     print("Router", router_name, "done!")
 
