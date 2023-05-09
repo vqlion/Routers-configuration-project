@@ -6,7 +6,7 @@ In order for the script to properly work, we need to provide it basic informatio
 
 The intents regarding the configuration of the network must be described in a json file.
 
-Here is an example of what that file must look like:
+Below is an example of what that file must look like:
 
 ```json
 {
@@ -22,57 +22,77 @@ Here is an example of what that file must look like:
  - ```AS_number``` is the AS number of the network
  - ```architecture_path``` is the path of the architecture json file, which describes the physical links between the routers in the network. See [architecture](#architecture-file) for this file's syntax
  - ```IGP``` is the IGP desired for the network (RIP or OSPF)
- - ```IP_prefix``` is the IP prefix desired to address the physical interfaces of the routers
- - ```IP_mask``` is the mask associated to the latter
+ - ```IP_prefix``` is the IP prefix desired to address the physical interfaces of the routers. In IPv4, the prefix has to specified following the following example's format : ```"IP_prefix": "10.1."```.
+ - ```IP_mask``` is the mask associated to the latter. It is deprecated for IPv4 addresses and will not be considered.
  - ```routers``` is a list of all the routers in the network, with information about their eBGP sessions and OSPF metric optimization
 
 Here is an example of what a router in the ```routers``` list must look like. Note that this list must be complete, even if a router does not have a custom cost parameter or an eBGP session.
 
 ```json
 {
-    "router_number": 9,
-    "telnet_port": 5008,
+    "router_number": 1,
+    "telnet_port": 5000,
     "cost_parameters": [
         {
             "cost":100,
             "interface": "g1/0"
         }
-    ], 
+    ],
     "eBGP": true,
     "eBGP_config": [
         {
+            "interface": "g1/0",
+            "remote_AS": 2,
+            "link_IP": "2000:100:1:2::/64",
+            "link_mask": 64,
+            "IP_version": 6,
+            "IP_address": "2000:100:1:2::1",
+            "remote_IP_address": "2000:100:1:2::5",
+            "local_preference": 400,
+            "community_in": "2:10",
+            "community_out": [],
+            "vpn": true,
+            "client_id": 1,
+            "vpn_list": [2]
+        },
+        {
             "interface": "g2/0",
-            "remote_AS": 2002,
-            "link_IP":"2000:100:1:2::/64",
-            "link_mask":64,
-            "IP_address": "2000:100:1:2::9",
-            "remote_IP_address": "2000:100:1:2::7",
-            "local_preference": 200,
-            "community_in": "2003:20",
-            "community_out": ["2003:30", "2003:20"],
-            "AS_path_prepend": 4
+            "remote_AS": 3,
+            "link_IP": "10.160.0.0",
+            "link_mask": "255.255.0.0",
+            "IP_version": 4,
+            "IP_address": "10.160.0.1",
+            "remote_IP_address": "10.160.0.6",
+            "local_preference": 400,
+            "community_in": "3:10",
+            "community_out": [],
+            "vpn": true,
+            "client_id": 2
         }
     ]
 }
 ```
 
  - ```router_number``` is the id of the router. It is arbitrary, but all routers must have different positive ids, and the id of a router must be consistent between the intent file and the architecture file
- - ```telnet_port``` is the port on which the telnet connection must occur. It is optional, but the telnet configuration won't work if it's not given
+ - ```telnet_port``` is the port on which the telnet connection must occur. It is optional, but the telnet configuration won't work if it's not given. By default, telnet configurations will be done on ```localhost```.
  - ```cost_parameters``` is a list of the costs intents for OSPF optimization. It is optional
-    - ```cost``` is the desired cost
+    - ```cost``` is the desired OSPF cost
     - ```interface``` is the name of the interface that will see its cost modified
  - ```eBGP``` is a boolean flag to specify whether the router will have an eBGP session on one of its interface. It is optional, and is considered as false if not given
- - ```eBGP_config``` is a list of the intents regarding the eBGP sessions. It is optional
+ - ```eBGP_config``` is a list of the intents regarding the eBGP sessions. It is optional but must be set if ```eBGP``` is set to true.
     - ```interface``` is the interface on which the session will be held
     - ```remote_AS``` is the AS number of the neighbor
-    - ```link_IP``` is the IP range of the link used for the session
-    - ```link_mask``` is the mask associated to the latter
+    - ```link_IP``` is the IP range of the link used for the session. In IPv6, you also have to specify the link here, as shown in the example. In IPv4, you must not specify the mask here.
+    - ```link_mask``` is the mask associated to the latter. It has to be specified following the example's formats for IPv4 & IPv6.
     - ```IP_address``` is the desired IP address on the ```interface```
     - ```remote_IP_address``` is the IP address of the neighboring router
     - ```local_preference``` is the local preference the router should apply to the routes advertised by the neighbor
-    - ```community_in``` is the community the router should apply to the routes advertised by the neighbor
-    - ```community_out``` is a list of all the communities the router should ignore when advertising routes to its neighbor. If a route has previously been tagged with a community in this list by any router in the AS, it won't be advertised
+    - ```community_in``` is the BGP community the router should apply to the routes advertised by the neighbor
+    - ```community_out``` is a list of all the communities the router should ignore when advertising routes to its neighbor. If a route has previously been tagged with a community in this list by any router in the AS, it won't be advertised.
     - ```AS_path_prepend``` is the desired amount of prepending on the routes advertised by the neighbor. It is optional
+    - ```vpn``` is a boolean flag to specifiy whether the neighbouring router is a vpn customer
+    - ```client_id``` is the id of the VPN customer. VPN customer ids are global to the AS and must be linked to one and only one customer. VPN routes of customers with the same ids will be shared.
+    - ```vpn_list``` is a list of all the VPN customers ids whom routes should be shared with the VPN customer (site sharing among multiple VPN customers) 
 
 ## Architecture file
 
